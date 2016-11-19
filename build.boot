@@ -12,8 +12,6 @@
                     [io.aviso/pretty        "0.1.20"]
                     [com.taoensso/timbre    "4.1.1"]
                     [djy                    "0.1.4"]
-                    [jline                  "2.12.1"]
-                    [org.clojars.sidec/jsyn "16.7.3"]
                     [potemkin               "0.4.1"]
                     [clj_manifest           "0.2.0"]])
 
