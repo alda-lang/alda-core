@@ -5,7 +5,7 @@
                     ; dev
                     [adzerk/bootlaces      "0.1.13" :scope "test"]
                     [adzerk/boot-test      "1.0.4"  :scope "test"]
-                    [alda/sound-engine-clj "0.0.1"  :scope "test"]
+                    [alda/sound-engine-clj "0.1.0"  :scope "test"]
                     ; used in examples_test.clj
                     [io.aviso/pretty       "0.1.20" :scope "test"]
 
@@ -19,7 +19,7 @@
 (require '[adzerk.bootlaces :refer :all]
          '[adzerk.boot-test :refer :all])
 
-(def ^:const +version+ "0.0.1")
+(def ^:const +version+ "0.1.0")
 
 (bootlaces! +version+)
 
