@@ -6,10 +6,11 @@
                     [adzerk/bootlaces      "0.1.13" :scope "test"]
                     [adzerk/boot-test      "1.0.4"  :scope "test"]
                     [alda/sound-engine-clj "0.0.1"  :scope "test"]
+                    ; used in examples_test.clj
+                    [io.aviso/pretty       "0.1.20" :scope "test"]
 
                     ; alda.core
                     [instaparse             "1.4.1"]
-                    [io.aviso/pretty        "0.1.20"]
                     [com.taoensso/timbre    "4.1.1"]
                     [djy                    "0.1.4"]
                     [potemkin               "0.4.1"]
@@ -65,15 +66,6 @@
 
                           ; benchmarks / smoke tests
                           alda.examples-test}})
-
-(deftask dev
-  "Runs the Alda REPL for development."
-  []
-  (comp
-    (with-pass-thru fs
-      (require 'alda.repl)
-      ((resolve 'alda.repl/start-repl!)))
-    (wait)))
 
 (deftask package
   "Builds jar file."
