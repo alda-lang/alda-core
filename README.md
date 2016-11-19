@@ -8,10 +8,6 @@ The core machinery of Alda, implemented in Clojure.
 
 * **alda.lisp** (a Clojure DSL which provides the context for evaluating an Alda score, in its Clojure code form)
 
-* **alda.sound** (generates sound based on the data map produced by parsing and evaluating Alda code)
-
-* **alda.now** (an entrypoint for using Alda as a Clojure library)
-
 * **alda.repl** (an interactive **R**ead-**E**val-**P**lay **L**oop for Alda code)
 
 For more details about how each component works, see the alda-core [development guide](doc/development-guide.md).
