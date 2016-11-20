@@ -99,9 +99,8 @@
                             #"Undefined variable: bar"
                             (score
                               (set-variable :foo
-                                (voices
-                                  (voice 1
-                                    (get-variable :bar)))))))))
+                                (voice 1
+                                       (get-variable :bar))))))))
   (testing "variables can contain event seqs"
     (let [s (score
               (set-variable :foo [])
