@@ -24,11 +24,25 @@
   (testing "a note event with no duration provided:"
     (let [s                  (score (part "piano"))
           piano              (get-instrument s "piano")
-          default-duration   (dur->ms {:beats (:duration piano)} (:tempo piano))
+          default-duration   (dur->ms {:beats (:beats (:duration piano))}
+                                      (:tempo piano))
           s                  (continue s
                                (note (pitch :c) :slur))
           piano              (get-instrument s "piano")
           {:keys [duration]} (first (:events s))]
       (testing "the default :duration of the instrument should be used"
-        (is (== duration default-duration))))))
+        (is (== default-duration duration)))))
+  (testing "a note event with no duration provided, following a note with a
+            second or millisecond duration:"
+    (let [s         (score
+                      (part "piano"
+                        (note (pitch :c)
+                              (duration (ms 2000))
+                              :slur)
+                        (note (pitch :d)
+                              :slur)))
+          durations (map :duration (:events s))
+          {:keys [duration]} (first (:events s))]
+      (testing "the default :duration of the instrument should be used"
+        (is (every? (partial == 2000) durations))))))
 

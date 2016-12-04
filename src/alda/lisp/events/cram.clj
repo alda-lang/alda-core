@@ -29,8 +29,8 @@
     (fn [{:keys [time-scaling] :as inst}]
       (let [inner-beats      (tally-beats score events)
             outer-beats      (or (:beats duration)
-                                 (:duration-inside-cram inst)
-                                 (:duration inst))
+                                 (:beats (:duration-inside-cram inst))
+                                 (:beats (:duration inst)))
             new-time-scaling (calculate-time-scaling time-scaling
                                                      inner-beats
                                                      outer-beats)]
@@ -56,7 +56,7 @@
       (-> inst
           (update :previous-duration-inside-cram
                   (fnil conj []) duration-inside-cram)
-          (assoc  :duration-inside-cram 1)))))
+          (assoc  :duration-inside-cram {:beats 1})))))
 
 (defn- reset-duration-inside-cram
   "Removes the :duration-inside-cram value for each instrument."
@@ -85,7 +85,7 @@
         (#(if-let [beats (:beats duration)]
             (update-instruments % (fn [{:keys [id] :as inst}]
                                     (if (contains? current-instruments id)
-                                      (assoc inst :duration beats)
+                                      (assoc inst :duration {:beats beats})
                                       inst)))
             %))
         (update :cram-level dec))))

@@ -62,18 +62,23 @@
   :transform pos-num)
 
 (defattribute duration
-  "Default note duration in beats."
-  :initial-val 1
+  "Default note duration in beats or milliseconds. (default: beats)"
+  :initial-val {:beats 1}
   :fn-name set-duration
-  ;; :aliases [:duration]
   :transform (fn [val]
                {:pre [(or
                        (map? val)
                        (and (number? val) (pos? val)))]}
+               (constantly
+                 (cond
+                   (and (map? val) (= :milliseconds (:type val)))
+                   {:ms (:value val)}
 
-               (constantly (if (map? val)
-                             (:value val)
-                             val))))
+                   (and (map? val) (= :beats (:type val)))
+                   {:beats (:value val)}
+
+                   :else
+                   {:beats val}))))
 
 (defattribute octave
   "Current octave. Used to calculate the pitch of notes."

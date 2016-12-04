@@ -26,32 +26,32 @@
                 track-volume panning octave key-signature min-duration]
          :as inst}
         (get-current-instruments score)]
-    (let [[beats ms]      (if (or beats ms)
-                            [beats ms]
-                            [(or duration-inside-cram duration) nil])
-          quant           (if slur? 1.0 quantization)
-          full-duration   (calculate-duration beats
-                                              tempo
-                                              time-scaling
-                                              ms)
-          quant-duration  (* full-duration quant)
-          pitch           (if (= event-type :note)
-                            (pitch-fn octave key-signature))
-          midi-note       (if (= event-type :note)
-                            (pitch-fn octave key-signature :midi true))
-          note            (if (= event-type :note)
-                            (map->Note
-                              {:offset       current-offset
-                               :instrument   id
-                               :volume       volume
-                               :track-volume track-volume
-                               :panning      panning
-                               :midi-note    midi-note
-                               :pitch        pitch
-                               :duration     quant-duration
-                               :voice        current-voice}))
-          min-duration    (when min-duration
-                            (min full-duration min-duration))]
+    (let [{:keys [beats ms]} (if (or beats ms)
+                               {:beats beats :ms ms}
+                               (or duration-inside-cram duration))
+          quant              (if slur? 1.0 quantization)
+          full-duration      (calculate-duration beats
+                                                 tempo
+                                                 time-scaling
+                                                 ms)
+          quant-duration     (* full-duration quant)
+          pitch              (if (= event-type :note)
+                               (pitch-fn octave key-signature))
+          midi-note          (if (= event-type :note)
+                               (pitch-fn octave key-signature :midi true))
+          note               (if (= event-type :note)
+                               (map->Note
+                                 {:offset       current-offset
+                                  :instrument   id
+                                  :volume       volume
+                                  :track-volume track-volume
+                                  :panning      panning
+                                  :midi-note    midi-note
+                                  :pitch        pitch
+                                  :duration     quant-duration
+                                  :voice        current-voice}))
+          min-duration       (when min-duration
+                               (min full-duration min-duration))]
       (log/debug (case event-type
                    :note
                    (format "%s plays at %s + %s for %s ms, at %.2f Hz."
@@ -72,9 +72,9 @@
                      :rest [])
        :state      {:duration             (if (pos? cram-level)
                                             duration
-                                            beats)
+                                            {:beats beats :ms ms})
                     :duration-inside-cram (when (pos? cram-level)
-                                            beats)
+                                            {:beats beats :ms ms})
                     :last-offset          (if chord-mode
                                             last-offset
                                             current-offset)

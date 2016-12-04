@@ -120,16 +120,16 @@
     (let [s     (score (part "piano"))
           piano (get-instrument s "piano")]
       ; default note length is a quarter note (1 beat)
-      (is (== (:duration piano) 1))
+      (is (== (:beats (:duration piano)) 1))
 
       (let [s     (continue s
                     (set-duration (note-length 2 {:dots 2})))
             piano (get-instrument s "piano")]
-        (is (== (:duration piano) 3.5)))
+        (is (== (:beats (:duration piano)) 3.5)))
 
       (let [s     (continue s
                     (note (pitch :c)
                           (duration (note-length 1) (note-length 1))))
             piano (get-instrument s "piano")]
-        (is (== (:duration piano) 8))))))
+        (is (== (:beats (:duration piano)) 8))))))
 
