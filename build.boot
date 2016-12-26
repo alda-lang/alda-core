@@ -1,6 +1,6 @@
 (set-env!
   :source-paths   #{"src" "test"}
-  :resource-paths #{"grammar" "examples"}
+  :resource-paths #{"examples"}
   :dependencies   '[
                     ; dev
                     [adzerk/bootlaces      "0.1.13" :scope "test"]
@@ -11,6 +11,7 @@
 
                     ; alda.core
                     [org.clojure/clojure    "1.8.0"]
+                    [org.clojure/core.async "0.2.395"]
                     [instaparse             "1.4.3"]
                     [com.taoensso/timbre    "4.7.4"]
                     [djy                    "0.1.4"]
