@@ -64,6 +64,7 @@
                           alda.lisp.variables-test
                           alda.lisp.voices-test
                           alda.util-test
+                          alda.import.midi-test
 
                           ; benchmarks / smoke tests
                           alda.examples-test}})
