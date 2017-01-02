@@ -10,6 +10,7 @@
                     [io.aviso/pretty       "0.1.33" :scope "test"]
 
                     ; alda.core
+                    [org.clojure/clojure    "1.8.0"]
                     [instaparse             "1.4.3"]
                     [com.taoensso/timbre    "4.7.4"]
                     [djy                    "0.1.4"]
