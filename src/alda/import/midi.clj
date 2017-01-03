@@ -1,5 +1,5 @@
 (ns alda.import.midi
-  (:import [javax.sound.midi MidiEvent MidiMessage Sequence Track]
+  (:import [javax.sound.midi MidiSystem]
            [java.io File])
 )
 
@@ -22,14 +22,15 @@
 )
 
 (defn- finish-note
-  "Adds the duration to an existing note given a NOTE_OFF event"
+  "Adds the duration to an existing note given a NOTE_OFF event.
+   We do this by subtracting the note-off timestamp from the note-off timestamp"
   [note-off-event half-note]
   (assoc half-note :duration
     (- (.getTick note-off-event) (get half-note :start)))
 )
 
 (defn- note-from-event
-  "Read a moment and get the corresponding note"
+  "Takes a new event from the Track and convert it to a Note struct"
   [event]
   (let [message (.getMessage event)]
     (cond
@@ -53,6 +54,6 @@
   (remove empty?
     (map notes-from-track
       (.getTracks
-        (javax.sound.midi.MidiSystem/getSequence
+        (MidiSystem/getSequence
           (new File path)))))
 )
