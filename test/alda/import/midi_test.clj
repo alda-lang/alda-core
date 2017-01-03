@@ -4,7 +4,7 @@
             [alda.import.midi  :refer :all]))
 
 (deftest midi-tests
-  (testing "we can call java from the clojure"
-    (is (= 3 (call-java)))
+  (testing "we can chain function calls together"
+    (is (= "some test data" (import-midi "./examples/midi/twotone.mid")))
   )
 )

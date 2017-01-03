@@ -1,31 +1,58 @@
 (ns alda.import.midi
-  (:import [java.lang Math])
+  (:import [javax.sound.midi MidiEvent MidiMessage Sequence Track]
+           [java.io File])
 )
+
+(def note-on 144)
+(def note-off 128)
+(defstruct note :channel :pitch :volume :start :duration)
 
 (comment
   "This module accepts raw bytecode from a midi file, and converts it to alda syntax
    which is then printed to STDOUT.")
 
-(defn call-java
-  "Calls a java function; I'm just doing this to get my feet wet."
-  []
-  (java.lang.Math/abs -3)
+(defn- begin-note
+  "Constructs the beginning of a vote given a NOTE_ON event"
+  [note-on-event]
+  (struct note
+    (-> note-on-event .getMessage .getChannel)
+    (-> note-on-event .getMessage .getData1)
+    (-> note-on-event .getMessage .getData2)
+    (-> note-on-event .getTick))
 )
 
-(defn slurp-midi
-  "read a midi file and convert it to an array of bytes"
-  []
-  nil
+(defn- finish-note
+  "Adds the duration to an existing note given a NOTE_OFF event"
+  [note-off-event half-note]
+  (assoc half-note :duration
+    (- (.getTick note-off-event) (get half-note :start)))
 )
 
-(defn extract-midi-notes
-  "converts an array of bytes to a series of note on pairs"
-  []
-  nil
+(defn- note-from-event
+  "Read a moment and get the corresponding note"
+  [event]
+  (let [message (.getMessage event)]
+    (cond
+      (not= (type message) com.sun.media.sound.FastShortMessage) nil
+      (= (.getCommand message) note-on)  (begin-note event)
+      (= (.getCommand message) note-off) (finish-note event (begin-note event))
+    ))
 )
 
-(defn midi-note-to-alda
-  "Takes a note on / note off pair and converts it to an alda note"
-  []
-  nil
+(defn- notes-from-track
+  "Read a track and get a series of note data from it"
+  [track]
+  (remove nil?
+    (for [tick (range 0 (.size track))]
+      (note-from-event (.get track tick))))
+)
+
+(defn import-midi
+  "Imports a .mid or .midi file specified by path, and prints it to STDOUT"
+  [path]
+  (remove empty?
+    (map notes-from-track
+      (.getTracks
+        (javax.sound.midi.MidiSystem/getSequence
+          (new File path)))))
 )
