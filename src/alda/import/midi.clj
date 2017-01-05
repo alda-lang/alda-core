@@ -26,7 +26,7 @@
 )
 
 (defn- note-off
-  "We've just heard a note complete; update state to include its duration"
+  "We've just heard a note complete; remove the note from partials, add a duration, and include it as a completed note"
   [state event]
   (let [partial (find-existing (get state :partials) {
           :pitch    (-> event .getMessage .getData1)
@@ -46,10 +46,10 @@
 )
 
 (defn- is-defined?
-  ; This is pretty ugly: We get an array of Events, some of which respond to
+  ; This is a bit ugly: We get an array of Events, some of which respond to
   ; getCommand() and some don't... we need to filter out the ones which don't
-  ; otherwise the world blows up. Seeing if 'getCommand' was in the list of methods
-  ; on the Java class was the only way I could get to go, but there's got to be a better way.
+  ; otherwise the world blows up. Seeing if 'getCommand' was reflected on the Java
+  ; class was the only way I could get to work, but there's probly a better way.
   "See if a java class responds to a method"
   [message method]
   (some #(= (.getName %) method) (-> message .getClass .getMethods))
