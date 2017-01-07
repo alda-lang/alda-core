@@ -3,8 +3,7 @@
             [alda.test-helpers :refer (get-instrument)]
             [alda.import.midi  :refer :all])
   (:import [javax.sound.midi MidiEvent MidiMessage ShortMessage]
-           [com.sun.media.sound FastShortMessage])
-)
+           [com.sun.media.sound FastShortMessage]))
 
 (defn- build-event
   "Build an event for testing"
@@ -13,8 +12,7 @@
   ([command channel data1]       (build-event command channel data1 0))
   ([command channel data1 data2] (build-event command channel data1 data2 10))
   ([command channel data1 data2 seq]
-    (new MidiEvent (new ShortMessage command channel data1 data2) seq))
-)
+    (new MidiEvent (new ShortMessage command channel data1 data2) seq)))
 
 (deftest midi-tests
   (testing "can process a short midi file"
@@ -49,26 +47,21 @@
     (let [event (build-event 144 9)
           state (process-note-event {} event)]
       (is (= 1 (count (get state :partials))))
-      (is (= 9 (get (first (get state :partials)) :channel))))
-  )
+      (is (= 9 (get (first (get state :partials)) :channel)))))
 
   (testing "note-off updates an existing note with the duration"
     (let [event (build-event 128 0 0 0 50)
           prev-state (process-note-event {} (build-event 144 0 0 0 10))
           state (process-note-event prev-state event)]
       (is (= 1 (count (get state :notes))))
-      (is (= 40 (get (first (get state :notes)) :duration))))
-  )
+      (is (= 40 (get (first (get state :notes)) :duration)))))
 
   (testing "change-program updates the instrument of the state"
     (let [event (build-event 192 0 15) ; include '15' as the data for the instrument to change to
           state (process-note-event {} event)]
-      (is (= 15 (get state :instrument))))
-  )
+      (is (= 15 (get state :instrument)))))
 
   (testing "other events don't change the state"
     (let [event (build-event 208)
           state (process-note-event {} event)]
-      (is (= {} state)))
-  )
-)
+      (is (= {} state)))))

@@ -16,5 +16,4 @@
   '[alda.import.midi])
 
 (doseq [ns namespaces]
-  (require ns)
-  (import-all-vars ns))
+  (require ns))
