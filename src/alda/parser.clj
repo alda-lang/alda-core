@@ -8,9 +8,30 @@
             [alda.lisp.model.duration :as    dur]
             [alda.lisp.model.pitch    :as    pitch]
             [alda.lisp.score          :as    score]
-            [alda.parser.tokenize     :as    token]))
+            [alda.parser.tokenize     :as    token]
+            [alda.parser.parse-events :as    event]))
 
-(defn parse-input
+(defn print-stream
+  "Continuously reads from a channel and prints what is received, stopping once
+   the channel is closed."
+  [channel]
+  (thread
+    (loop []
+      (when-let [x (<!! channel)]
+        (prn x)
+        (recur)))))
+
+(defn stream-seq
+  "Coerces a channel into a lazy sequence that can be lazily consumed or
+   realized at will."
+  [ch]
+  (lazy-seq (when-let [v (<!! ch)] (cons v (stream-seq ch)))))
+
+(defn tokenize
+  "Asynchronously reads and tokenizes input, streaming the result into a
+   channel.
+
+   Returns a channel from which tokens can be read as they are parsed."
   [input]
   (let [chars-ch  (chan)
         tokens-ch (chan)]
@@ -26,13 +47,45 @@
         (if-let [character (<!! chars-ch)]
           (recur (token/read-character! parser character))
           (do
+            ; put final tokenizer state on the channel
             (>!! tokens-ch (dissoc parser :tokens-ch))
+            ; close channel
             (close! tokens-ch)))))
 
-    ; temp: print out tokens as they are parsed
+    tokens-ch))
+
+(defn parse-events
+  "Asynchronously reads tokens from a channel, parsing events and streaming
+   them into a new channel.
+
+   Returns a channel from which events can be read as they are parsed."
+  [tokens-ch]
+  (let [events-ch (chan)]
     (thread
-      (loop []
-        (when-let [token (<!! tokens-ch)]
-          (prn token)
-          (recur))))))
+      (loop [parser (event/parser events-ch)]
+        (let [token (<!! tokens-ch)]
+          (cond
+            (nil? token)
+            (throw
+              (Exception.
+                "Reached the end of tokens without final tokenizer state."))
+
+            (map? token)
+            (do
+              ; put final tokenizer state on the channel
+              (>!! events-ch (dissoc token :tokens-ch))
+              ; put final event-parser state on the channel
+              (>!! events-ch (dissoc parser :events-ch))
+              ; close channel
+              (close! events-ch))
+
+            :else
+            (recur (event/read-token! parser token))))))
+
+    events-ch))
+
+(defn parse-input
+  [input]
+  ; temp: print out tokens as they are parsed
+  (-> input tokenize parse-events print-stream))
 
