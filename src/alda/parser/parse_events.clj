@@ -1,10 +1,11 @@
-
 (ns alda.parser.parse-events
-  (:require [clojure.core.async :refer (>!!)]))
+  (:require [clojure.core.async   :refer (>!!)]
+            [alda.parser.tokenize :refer (token-names)]))
 
-(def initial-parser-state
-  {:state          :parsing ; parsing, done, or error
-   ; TODO
+(defn initial-parser-state
+  [& [initial-context]]
+  {:state :parsing
+   :stack [[(or initial-context :header)]] ; context for nesting events
    })
 
 (defn emit-event!
@@ -13,8 +14,9 @@
   parser)
 
 (defn parser
-  [events-ch]
-  (assoc initial-parser-state :events-ch events-ch))
+  [events-ch & [initial-context]]
+  (-> (initial-parser-state initial-context)
+      (assoc :events-ch events-ch)))
 
 (defn ensure-parsing
   "If the parser's state is not :parsing, short-circuits the parser so that the
@@ -36,7 +38,15 @@
 
 (defn unexpected-token-error
   [parser token]
-  (let [error-msg (format "Unexpected token: %s." token)]
+  (let [error-msg (if (sequential? token)
+                    (let [[token [line column] content] token]
+                      (format "Unexpected %s at line %s, column %s."
+                              (if (= :EOF token)
+                                "EOF"
+                                (get token-names token token))
+                              line
+                              column))
+                    (format "Unexpected token: %s." token))]
     (-> parser (emit-event! (Exception. error-msg)) (assoc :state :error))))
 
 (defn read-token!

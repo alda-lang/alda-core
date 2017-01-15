@@ -31,9 +31,13 @@
   [{:keys [stack] :as parser}]
   (-> stack peek first))
 
-(defn current-token-content
+(defn starting-line-and-column
   [{:keys [stack] :as parser}]
   (-> stack peek second))
+
+(defn current-token-content
+  [{:keys [stack] :as parser}]
+  (-> stack peek (nth 2)))
 
 (defn last-token-type
   [{:keys [stack] :as parser}]
@@ -41,7 +45,7 @@
 
 (defn last-token-content
   [{:keys [stack] :as parser}]
-  (-> stack pop peek second))
+  (-> stack pop peek (nth 2)))
 
 (defn currently-parsing?
   [parser token]
@@ -54,6 +58,7 @@
 (defn emit-token!
   [{:keys [tokens-ch] :as parser} & {:keys [token content pop-stack?]}]
   (>!! tokens-ch [(or token (current-token-type parser))
+                  (starting-line-and-column parser)
                   (or content (current-token-content parser))])
   (if pop-stack?
     (-> parser pop-stack)
@@ -106,22 +111,25 @@
 
 (defn append-to-current-buffer
   [{:keys [stack] :as parser} x]
-  (if-let [[token buffer] (peek stack)]
-    (update parser :stack #(-> % pop (conj [token (str buffer x)])))
+  (if-let [[token [line col] buffer] (peek stack)]
+    (update parser :stack #(-> % pop (conj [token [line col] (str buffer x)])))
     parser))
 
 (defn add-current-buffer-to-last
   [{:keys [stack] :as parser}]
-  (let [[current-token current-buffer] (peek stack)
-        popped-stack                   (pop stack)
-        [last-token last-buffer]       (peek popped-stack)
-        last-buffer+                   (str last-buffer current-buffer)]
+  (let [[current-token current-line-col current-buffer] (peek stack)
+        popped-stack                                    (pop stack)
+        [last-token last-line-col last-buffer]          (peek popped-stack)
+        last-buffer+                                    (str last-buffer
+                                                             current-buffer)]
     (-> parser
-        (assoc :stack (-> popped-stack pop (conj [last-token last-buffer+]))))))
+        (assoc :stack (-> popped-stack pop (conj [last-token
+                                                  last-line-col
+                                                  last-buffer+]))))))
 
 (defn new-buffer
-  [parser token]
-  (-> parser (update :stack conj [token ""])))
+  [{:keys [line column] :as parser} token]
+  (-> parser (update :stack conj [token [line column] ""])))
 
 (defn read-to-buffer
   [parser x & [size]]
