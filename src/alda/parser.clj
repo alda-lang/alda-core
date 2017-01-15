@@ -47,9 +47,7 @@
         (if-let [character (<!! chars-ch)]
           (recur (token/read-character! parser character))
           (do
-            ; put final tokenizer state on the channel
-            (>!! tokens-ch (dissoc parser :tokens-ch))
-            ; close channel
+            (>!! tokens-ch :EOF)
             (close! tokens-ch)))))
 
     tokens-ch))
@@ -63,25 +61,11 @@
   (let [events-ch (chan)]
     (thread
       (loop [parser (event/parser events-ch)]
-        (let [token (<!! tokens-ch)]
-          (cond
-            (nil? token)
-            (throw
-              (Exception.
-                "Reached the end of tokens without final tokenizer state."))
-
-            (map? token)
-            (do
-              ; put final tokenizer state on the channel
-              (>!! events-ch (dissoc token :tokens-ch))
-              ; put final event-parser state on the channel
-              (>!! events-ch (dissoc parser :events-ch))
-              ; close channel
-              (close! events-ch))
-
-            :else
-            (recur (event/read-token! parser token))))))
-
+        (if-let [token (<!! tokens-ch)]
+          (recur (event/read-token! parser token))
+          (do
+            (>!! events-ch :EOF)
+            (close! events-ch)))))
     events-ch))
 
 (defn parse-input
