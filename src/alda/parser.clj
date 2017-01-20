@@ -43,11 +43,11 @@
 
     ; parse tokens from chars-ch and feed them to tokens-ch
     (thread
-      (loop [parser (token/parser tokens-ch)]
+      (loop [{:keys [line column] :as parser} (token/parser tokens-ch)]
         (if-let [character (<!! chars-ch)]
           (recur (token/read-character! parser character))
           (do
-            (>!! tokens-ch :EOF)
+            (>!! tokens-ch [:EOF [line column]])
             (close! tokens-ch)))))
 
     tokens-ch))
@@ -64,7 +64,7 @@
         (if-let [token (<!! tokens-ch)]
           (recur (event/read-token! parser token))
           (do
-            (>!! events-ch :EOF)
+            (prn :final-parser-state (dissoc parser :events-ch))
             (close! events-ch)))))
     events-ch))
 
