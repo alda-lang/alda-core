@@ -1,4 +1,8 @@
-(ns alda.lisp.events.barline)
+(ns alda.lisp.events.barline
+  (:require [alda.lisp.model.event :refer (update-score)]))
 
-(comment "Barlines, at least currently, do nothing when evaluated in alda.lisp.")
+(defmethod update-score :barline
+  [score _]
+  "Barlines, at least currently, do nothing when evaluated in alda.lisp."
+  score)
 

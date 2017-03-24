@@ -1,15 +1,10 @@
 (ns alda.parser
-  (:require [clojure.core.async       :refer (chan thread <!! >!! close!)]
-            [clojure.string           :as    str]
-            [clojure.java.io          :as    io]
-            [taoensso.timbre          :as    log]
-            [alda.lisp.attributes     :as    attrs]
-            [alda.lisp.events         :as    evts]
-            [alda.lisp.model.duration :as    dur]
-            [alda.lisp.model.pitch    :as    pitch]
-            [alda.lisp.score          :as    score]
-            [alda.parser.tokenize     :as    token]
-            [alda.parser.parse-events :as    event]))
+  (:require [alda.lisp.score :as score]
+            [alda.parser
+             [aggregate-events :as agg]
+             [parse-events     :as event]
+             [tokenize         :as token]]
+            [clojure.core.async :refer [<!! >!! chan close! go-loop thread]]))
 
 (defn print-stream
   "Continuously reads from a channel and prints what is received, stopping once
@@ -56,7 +51,9 @@
   "Asynchronously reads tokens from a channel, parsing events and streaming
    them into a new channel.
 
-   Returns a channel from which events can be read as they are parsed."
+   Returns a channel from which events can be read as they are parsed.
+
+   If there is an error, the error is included in the stream."
   [tokens-ch]
   (let [events-ch (chan)]
     (thread
@@ -64,12 +61,72 @@
         (if-let [token (<!! tokens-ch)]
           (recur (event/read-token! parser token))
           (do
-            (prn :final-parser-state (dissoc parser :events-ch))
+            (>!! events-ch :EOF)
             (close! events-ch)))))
     events-ch))
 
+(defn aggregate-events
+  "Asynchronously reads events from a channel and aggregates certain types of events that need to be aggregated, e.g. notes in a chord.
+
+   Returns a channel on which the final events can be read.
+
+   If there is an error, the error is included in the stream."
+  [events-ch]
+  (let [events-ch2 (chan)]
+    (thread
+      (loop [parser (agg/parser events-ch2)]
+        (if-let [event (<!! events-ch)]
+          (recur (agg/read-event! parser event))
+          (close! events-ch2))))
+    events-ch2))
+
+(defn build-score
+  "Asynchronously reads events from a channel and applies them sequentially to a
+   new score.
+
+   Returns a channel from which the complete score can be taken.
+
+   If there was an error in the a previous part of the pipeline, it is thrown
+   here."
+  [events-ch2]
+  (go-loop [score (score/score)]
+    (let [event (<!! events-ch2)]
+      (cond
+        (nil? event)
+        score
+
+        (instance? Throwable event)
+        (throw event)
+
+        :else
+        (recur (score/continue score event))))))
+
 (defn parse-input
-  [input]
-  ; temp: print out tokens as they are parsed
-  (-> input tokenize parse-events print-stream))
+  "Given a string of Alda code, process it via the following asynchronous
+   pipeline:
+
+   - Tokenize it into a stream of recognized tokens.
+   - From the token stream, parse out a stream of events.
+   - Process the events sequentially to build a score.
+
+   If an :output key is supplied, the result will depend on the value of that
+   key:
+
+   :score => an Alda score map, ready to be performed by the sound engine
+
+   :events => a lazy sequence of Alda events, which will produce a complete
+   score when applied sequentially to a new score
+
+   The default :output is :score."
+  [input & {:keys [output] :or {output :score}}]
+  ;; alda.lisp must be required and referred in order to use inline Clojure
+  ;; expressions.
+  (when-not (resolve 'ALDA-LISP-LOADED)
+    (throw (Exception. "Prequisite: (require '[alda.lisp :refer :all])")))
+  (case output
+    :score
+    (-> input tokenize parse-events aggregate-events build-score <!!)
+
+    :events
+    (-> input tokenize parse-events aggregate-events stream-seq)))
 

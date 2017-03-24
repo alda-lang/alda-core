@@ -56,6 +56,21 @@
   {:event-type :chord
    :events     events})
 
+(defn set-attribute
+  "Public fn for setting attributes in a score.
+   e.g. (set-attribute :tempo 100)"
+  [attr val]
+  {:event-type :attribute-change
+   :attr       (:kw-name (get-attr attr))
+   :val        val})
+
+(defn set-attributes
+  "Convenience fn for setting multiple attributes at once.
+   e.g. (set-attributes :tempo 100 :volume 50)"
+  [& attrs]
+  (for [[attr val] (partition 2 attrs)]
+    (set-attribute attr val)))
+
 (defn global-attribute
   "Public fn for setting global attributes in a score.
    e.g. (global-attribute :tempo 100)"
@@ -85,7 +100,7 @@
 (defn barline
   "Barlines, at least currently, do nothing when evaluated in alda.lisp."
   []
-  nil)
+  {:event-type :barline})
 
 (defn marker
   "Places a marker at the current absolute offset. Throws an exception if there

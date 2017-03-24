@@ -16,9 +16,11 @@
    as a single 'event sequence'."
   (fn [score event]
     (cond
-      (or (nil? event) (var? event)) :nil
-      (sequential? event)            :event-sequence
-      :else                          (:event-type event))))
+      (or (= :nil event)
+          (nil? event)
+          (var? event))   :nil
+      (sequential? event) :event-sequence
+      :else               (:event-type event))))
 
 (defmethod update-score :default
   [_ event]

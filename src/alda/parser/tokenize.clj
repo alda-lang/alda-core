@@ -24,11 +24,13 @@
    :equals            "'='"
    :event-seq         "event sequence"
    :name              "name"
+   :nickname          "nickname"
    :note              "note"
    :note-length       "note length"
    :note-rest-or-name "note, rest, or name"
    :repeat            "repeat"
-   :rest              "rest"})
+   :rest              "rest"
+   :slash             "'/'"})
 
 (defn current-token-type
   [{:keys [stack] :as parser}]

@@ -1,6 +1,6 @@
 (ns alda.lisp.model.global-attribute
-  (:require [alda.lisp.model.attribute :refer (set-attribute
-                                               apply-attribute)]
+  (:require [alda.lisp.events          :refer (set-attribute)]
+            [alda.lisp.model.attribute :refer (apply-attribute)]
             [alda.lisp.model.event     :refer (update-score)]
             [alda.lisp.model.offset    :refer (absolute-offset
                                                instruments-all-at-same-offset)]

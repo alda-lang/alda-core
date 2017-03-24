@@ -20,9 +20,9 @@
    If there are no accidentals and this letter is in the signature, return the
    letter's signature accidentals, otherwise return existing accidentals."
   [signature letter accidentals]
-   (if (empty? accidentals)
-     (get signature letter)
-     accidentals))
+  (if (empty? accidentals)
+    (get signature letter)
+    accidentals))
 
 (defn pitch
   "Returns a fn that will calculate the frequency in Hz, within the context
