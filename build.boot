@@ -3,11 +3,12 @@
   :resource-paths #{"examples"}
   :dependencies   '[
                     ; dev
-                    [adzerk/bootlaces      "0.1.13" :scope "test"]
-                    [adzerk/boot-test      "1.1.2"  :scope "test"]
-                    [alda/sound-engine-clj "0.1.0"  :scope "test"]
+                    [adzerk/bootlaces            "0.1.13"       :scope "test"]
+                    [adzerk/boot-test            "1.1.2"        :scope "test"]
+                    [alda/sound-engine-clj       "0.1.0"        :scope "test"]
+                    [org.clojure/tools.namespace "0.3.0-alpha3" :scope "test"]
                     ; used in examples_test.clj
-                    [io.aviso/pretty       "0.1.33" :scope "test"]
+                    [io.aviso/pretty             "0.1.33"       :scope "test"]
 
                     ; alda.core
                     [org.clojure/clojure    "1.8.0"]

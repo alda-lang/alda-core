@@ -4,6 +4,9 @@
             [instaparse.core  :as    insta]
             [clojure.java.io  :as    io]))
 
+;; FIXME: stubs of removed fns to satisfy the compiler
+(declare parse-header parse-part remove-comments separate-parts name-transforms check-for-failure score-parser)
+
 (defn- test-parse-music-data
   [mode alda-code]
   (let [cache (atom {})]
