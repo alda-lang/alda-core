@@ -20,6 +20,7 @@
    bach_cello_suite_no_1
    clapping_music
    debussy_quartet
+   dot_accessor
    entropy
    gau
    hello_world
@@ -32,6 +33,7 @@
    phase
    poly
    printing
+   seconds_and_milliseconds
    variables
    variables-2
    ])
