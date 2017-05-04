@@ -122,7 +122,7 @@
   ;; alda.lisp must be required and referred in order to use inline Clojure
   ;; expressions.
   (when-not (resolve 'ALDA-LISP-LOADED)
-    (throw (Exception. "Prequisite: (require '[alda.lisp :refer :all])")))
+    (require '[alda.lisp :refer :all]))
   (case output
     :score
     (-> input tokenize parse-events aggregate-events build-score <!!)

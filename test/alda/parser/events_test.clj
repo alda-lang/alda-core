@@ -1,5 +1,6 @@
 (ns alda.parser.events-test
   (:require [clojure.test :refer :all]
+            [alda.lisp]
             [alda.parser  :refer (parse-input)]))
 
 (deftest note-tests
