@@ -425,7 +425,7 @@
   (when (currently-parsing? parser :name)
     (if ((set (str "abcdefghijklmnopqrstuvwxyz"
                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                   "0123456789_-"))
+                   "0123456789_-."))
          character)
       (-> parser (read-to-buffer character))
       (-> parser (emit-token! :pop-stack? true)
