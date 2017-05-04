@@ -518,7 +518,7 @@
 (defn start-parsing-chord
   [parser token]
   (when (and (token-is :slash token)
-             (#{:note :rest :duration} (current-event-type parser)))
+             (not= :instrument-call (last-open-event parser)))
     (-> parser (assoc :chord? true))))
 
 (defn continue-parsing-chord

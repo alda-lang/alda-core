@@ -517,11 +517,11 @@
                          (read-character! character))]
       (cond
         (and ((set "abcdefg") char1)
-             ((conj (set " \n+-_/~*}]0123456789") :EOF) character))
+             ((conj (set " \n+-_/~*}]<>0123456789") :EOF) character))
         (-> parser (parse :note))
 
         (and (= \r char1)
-             ((set " \n/~0123456789") character))
+             ((conj (set " \n/~*}]<>0123456789") :EOF) character))
         (-> parser (parse :rest))
 
         ((set "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") character)
