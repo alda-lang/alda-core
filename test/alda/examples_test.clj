@@ -2,7 +2,6 @@
   (:require [clojure.test    :refer :all]
             [clojure.java.io :as    io]
             [alda.parser     :refer (parse-input)]
-            [instaparse.core :as    insta]
             [io.aviso.ansi   :refer :all]))
 
 (def example-scores
