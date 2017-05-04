@@ -23,19 +23,20 @@
    If no duration is specified, the note is played for the instrument's own
    internal duration, which will be the duration last specified on a note or
    rest in that instrument's part."
-  ([pitch-fn]
-    (note pitch-fn nil false))
-  ([pitch-fn x]
+  ([pitch]
+    (note pitch nil false))
+  ([pitch x]
     ; x could be a duration or :slur
     (let [duration (when (map? x) x)
           slur?    (= x :slur)]
-      (note pitch-fn duration slur?)))
-  ([pitch-fn {:keys [beats ms slurred]} slur?]
-     {:event-type :note
-      :pitch-fn   pitch-fn
-      :beats      beats
-      :ms         ms
-      :slur?      (or slur? slurred)}))
+      (note pitch duration slur?)))
+  ([{:keys [letter accidentals]} {:keys [beats ms slurred]} slur?]
+     {:event-type  :note
+      :letter      letter
+      :accidentals accidentals
+      :beats       beats
+      :ms          ms
+      :slur?       (or slur? slurred)}))
 
 (defn pause
   "Causes every instrument in :current-instruments to rest (not play) for the

@@ -9,7 +9,7 @@
   [letter octave]
   (+ (intervals letter) (* octave 12) 12))
 
-(defn- midi->hz
+(defn midi->hz
   "Converts a MIDI note number to the note's frequency in Hz."
   [note]
   (* 440.0 (Math/pow 2.0 (/ (- note 69.0) 12.0))))
@@ -24,19 +24,20 @@
     (get signature letter)
     accidentals))
 
+(defn determine-midi-note
+  "Determines the MIDI note number of a note, within the context of an
+   instrument's octave and key signature."
+  [{:keys [letter accidentals] :as note} octave key-sig]
+  (reduce (fn [number accidental]
+            (case accidental
+              :flat    (dec number)
+              :sharp   (inc number)
+              :natural (identity number)))
+          (midi-note letter octave)
+          (apply-key key-sig letter accidentals)))
+
 (defn pitch
-  "Returns a fn that will calculate the frequency in Hz, within the context
-   of an instrument's octave and key signature."
   [letter & accidentals]
-  (fn [octave key-sig & {:keys [midi]}]
-    (let [midi-note (reduce (fn [number accidental]
-                              (case accidental
-                                :flat    (dec number)
-                                :sharp   (inc number)
-                                :natural (identity number)))
-                            (midi-note letter octave)
-                            (apply-key key-sig letter accidentals))]
-      (if midi
-        midi-note
-        (midi->hz midi-note)))))
+  {:letter      letter
+   :accidentals (or accidentals [])})
 

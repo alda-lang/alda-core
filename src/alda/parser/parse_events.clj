@@ -135,7 +135,7 @@
                                  :when (= :accidentals type)]
                              (map {\+ :sharp \- :flat \_ :natural} content))
                             flatten)
-        pitch-fn       (apply pitch/pitch (keyword (:content letter)) accidentals)
+        pitch          (apply pitch/pitch (keyword (:content letter)) accidentals)
         duration       (-> (for [{:keys [type] :as event} more
                                  :when (= :duration type)]
                              (alda-event-with-metadata event))
@@ -143,7 +143,7 @@
         slur           (when (or (some #(= :tie (:type %)) more)
                                  (:slur? duration))
                          :slur)]
-    (-> (event/note pitch-fn duration slur)
+    (-> (event/note pitch duration slur)
         (merge (when chord? {:chord? true})))))
 
 (defmethod alda-event :note-length
