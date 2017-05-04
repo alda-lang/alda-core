@@ -25,7 +25,7 @@
 (defn flush-buffer!
   [{:keys [buffer] :as parser}]
   (if (some :chord? buffer)
-    (let [chord (apply event/chord buffer)]
+    (let [chord (apply event/chord (map #(dissoc % :chord?) buffer))]
       (emit-event! parser chord))
     (doseq [event buffer]
       (emit-event! parser event)))
@@ -46,6 +46,9 @@
     (if (:chord? event)
       (-> parser (add-to-buffer event))
       (-> parser flush-buffer! (add-to-buffer event)))
+
+    (= :attribute-change (:event-type event))
+    (-> parser (add-to-buffer event))
 
     :else
     (-> parser flush-buffer! (emit-event! event))))
