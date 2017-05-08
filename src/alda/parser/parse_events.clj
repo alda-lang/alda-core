@@ -72,13 +72,6 @@
   [{:keys [type] :as event}]
   (throw (Exception. (format "Unrecognized event: %s" type))))
 
-(defmethod alda-event :error
-  [{:keys [content]}]
-  ;; Emit the error itself on the stream so it can be thrown at the end.
-  (if (instance? Throwable content)
-    content
-    (Exception. content)))
-
 (defmethod alda-event :at-marker
   [{:keys [content]}]
   (event/at-marker content))
@@ -222,10 +215,21 @@
       (with-meta event metadata)
       event)))
 
-(defn emit-event!
-  [{:keys [events-ch] :as parser} event]
-  (>!! events-ch (alda-event-with-metadata event))
+(defn emit!
+  [{:keys [events-ch] :as parser} x]
+  (>!! events-ch x)
   parser)
+
+(defn emit-event!
+  [parser event]
+  (-> parser (emit! (alda-event-with-metadata event))))
+
+(defn emit-error!
+  [parser e-or-msg]
+  (let [error (if (instance? Throwable e-or-msg)
+                e-or-msg
+                (Exception. e-or-msg))]
+    (-> parser (emit! error) (assoc :state :error))))
 
 (defn pop-and-emit-event!
   [{:keys [stack] :as parser}]
@@ -262,11 +266,6 @@
 (def repeatable?
   #{:clj-expr :note :rest :event-seq :get-variable :cram})
 
-(defn error
-  [parser error-content]
-  (-> parser (emit-event! {:type :error :content error-content})
-             (assoc :state :error)))
-
 (defn unexpected-token-error
   [parser token]
   (let [error-msg (if (sequential? token)
@@ -278,7 +277,7 @@
                               line
                               column))
                     (format "Unexpected token: %s." token))]
-    (-> parser (error error-msg))))
+    (-> parser (emit-error! error-msg))))
 
 (declare push-set-variable)
 
@@ -405,8 +404,8 @@
   "If there was an error in a previous stage of the parsing pipeline, propagate
    it through and stop parsing."
   [parser token]
-  (when (token-is :error token)
-    (-> parser (error (token-content token)))))
+  (when (instance? Throwable token)
+    (-> parser (emit-error! token))))
 
 (defn finish-parsing
   [{:keys [stack] :as parser} token]
@@ -658,4 +657,4 @@
         (finish-parsing p t)
         (unexpected-token-error p t))
     (catch Throwable e
-      (error p e))))
+      (emit-error! p e))))

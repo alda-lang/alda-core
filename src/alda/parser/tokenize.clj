@@ -60,14 +60,26 @@
   [parser]
   (-> parser (update :stack #(if (empty? %) % (pop %)))))
 
+(defn emit!
+  [{:keys [tokens-ch] :as parser} x]
+  (>!! tokens-ch x)
+  parser)
+
 (defn emit-token!
-  [{:keys [tokens-ch] :as parser} & {:keys [token content pop-stack?]}]
-  (>!! tokens-ch [(or token (current-token-type parser))
-                  (starting-line-and-column parser)
-                  (or content (current-token-content parser))])
-  (if pop-stack?
-    (-> parser pop-stack)
-    parser))
+  [parser & {:keys [token content pop-stack?]}]
+  (let [maybe-pop-stack #(if pop-stack? (pop-stack %) %)]
+    (-> parser
+        (emit! [(or token (current-token-type parser))
+                (starting-line-and-column parser)
+                (or content (current-token-content parser))])
+        maybe-pop-stack)))
+
+(defn emit-error!
+  [parser e-or-msg]
+  (let [error (if (instance? Throwable e-or-msg)
+                e-or-msg
+                (Exception. e-or-msg))]
+    (-> parser (emit! error) (assoc :state :error))))
 
 (defn unexpected-char-error
   [{:keys [line column] :as parser} character]
@@ -81,13 +93,7 @@
                             "")
                           line
                           column)]
-    (-> parser (emit-token! :token :error :content error-msg)
-               (assoc :state :error))))
-
-(defn caught-error
-  [parser e]
-  (-> parser (emit-token! :token :error :content e)
-             (assoc :state :error)))
+    (-> parser (emit-error! error-msg))))
 
 (defn reject-chars
   [parser character blacklist]
@@ -692,4 +698,4 @@
         (skip-whitespace p c)
         (unexpected-char-error p c))
     (catch Throwable e
-      (caught-error p e))))
+      (emit-error! p e))))
