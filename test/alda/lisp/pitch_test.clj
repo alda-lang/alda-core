@@ -1,30 +1,31 @@
 (ns alda.lisp.pitch-test
   (:require [clojure.test      :refer :all]
-            [alda.test-helpers :refer (get-instrument)]
+            [alda.test-helpers :refer (get-instrument
+                                       calculate-pitch)]
             [alda.lisp         :refer :all]))
 
 (deftest pitch-tests
   (testing "pitch converts a note in a given octave to frequency in Hz"
-    (is (== 440 ((pitch :a) 4 {})))
-    (is (== 880 ((pitch :a) 5 {})))
-    (is (< 261 ((pitch :c) 4 {}) 262)))
+    (is (== 440 (calculate-pitch :a [] 4 {})))
+    (is (== 880 (calculate-pitch :a [] 5 {})))
+    (is (< 261 (calculate-pitch :c  [] 4 {}) 262)))
   (testing "flats and sharps"
-    (is (> ((pitch :c :sharp) 4 {})
-           ((pitch :c) 4 {})))
-    (is (> ((pitch :c) 5 {})
-           ((pitch :c :sharp) 4 {})))
-    (is (< ((pitch :b :flat) 4 {})
-           ((pitch :b) 4 {})))
-    (is (== ((pitch :c :sharp) 4 {})
-            ((pitch :d :flat) 4 {})))
-    (is (== ((pitch :c :sharp :sharp) 4 {})
-            ((pitch :d) 4 {})))
-    (is (== ((pitch :f :flat) 4 {})
-            ((pitch :e) 4 {})))
-    (is (== ((pitch :a :flat :flat) 4 {})
-            ((pitch :g) 4 {})))
-    (is (== ((pitch :c :sharp :flat :flat :sharp) 4 {})
-            ((pitch :c) 4 {})))))
+    (is (> (calculate-pitch :c [:sharp] 4 {})
+           (calculate-pitch :c [] 4 {})))
+    (is (> (calculate-pitch :c [] 5 {})
+           (calculate-pitch :c [:sharp] 4 {})))
+    (is (< (calculate-pitch :b [:flat] 4 {})
+           (calculate-pitch :b [] 4 {})))
+    (is (== (calculate-pitch :c [:sharp] 4 {})
+            (calculate-pitch :d [:flat] 4 {})))
+    (is (== (calculate-pitch :c [:sharp :sharp] 4 {})
+            (calculate-pitch :d [] 4 {})))
+    (is (== (calculate-pitch :f [:flat] 4 {})
+            (calculate-pitch :e [] 4 {})))
+    (is (== (calculate-pitch :a [:flat :flat] 4 {})
+            (calculate-pitch :g [] 4 {})))
+    (is (== (calculate-pitch :c [:sharp :flat :flat :sharp] 4 {})
+            (calculate-pitch :c [] 4 {})))))
 
 (deftest key-tests
   (testing "you can set and get a key signature"
@@ -53,13 +54,13 @@
       (is (= {:f [:sharp]}
              (:key-signature piano)))))
   (testing "the pitch of a note is affected by the key signature"
-    (is (= ((pitch :b) 4 {:b [:flat]})
-           ((pitch :b :flat) 4 {})))
-    (is (= ((pitch :b :natural) 4 {:b [:flat]})
-           ((pitch :b) 4 {})))
+    (is (= (calculate-pitch :b [] 4 {:b [:flat]})
+           (calculate-pitch :b [:flat] 4 {})))
+    (is (= (calculate-pitch :b [:natural] 4 {:b [:flat]})
+           (calculate-pitch :b [] 4 {})))
     (let [s         (score
                       (part "piano"
                         (key-signature "f+")))
           piano     (get-instrument s "piano")
-          f-sharp-4 ((pitch :f) 4 (:key-signature piano))]
-      (is (= f-sharp-4 ((pitch :f :sharp) 4 {}))))))
+          f-sharp-4 (calculate-pitch :f [] 4 (:key-signature piano))]
+      (is (= f-sharp-4 (calculate-pitch :f [:sharp] 4 {}))))))

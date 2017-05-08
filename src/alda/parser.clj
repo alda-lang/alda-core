@@ -115,7 +115,12 @@
    :score => an Alda score map, ready to be performed by the sound engine
 
    :events => a lazy sequence of Alda events, which will produce a complete
-   score when applied sequentially to a new score
+   score when applied sequentially to a new score. Note that the sequence may
+   contain an error object if there is any error parsing, and the error is not
+   thrown. If it is desirable to throw an error, use :events-or-error.
+
+   :events-or-error => equivalent to :events, but the sequence is fully realized
+   and an error is thrown in the event of a parse error.
 
    The default :output is :score."
   [input & {:keys [output] :or {output :score}}]
@@ -128,5 +133,12 @@
     (-> input tokenize parse-events aggregate-events build-score <!!)
 
     :events
-    (-> input tokenize parse-events aggregate-events stream-seq)))
+    (-> input tokenize parse-events aggregate-events stream-seq)
+
+    :events-or-error
+    (let [events (parse-input input :output :events)]
+      (doseq [event events]
+        (if (instance? Throwable event)
+          (throw event)))
+      events)))
 

@@ -219,7 +219,7 @@
 
 (defn start-parsing-clj-string
   [p c]
-  (start-parsing p c :clj-string {:start-char \"}))
+  (start-parsing p c :clj-string {:start-char \" :buffer-first-char true}))
 
 (defn start-parsing-comment
   [p c]
@@ -517,11 +517,11 @@
                          (read-character! character))]
       (cond
         (and ((set "abcdefg") char1)
-             ((conj (set " \n+-_/~*}]<>0123456789") :EOF) character))
+             ((conj (set "# \n+-_/~*}]<>0123456789") :EOF) character))
         (-> parser (parse :note))
 
         (and (= \r char1)
-             ((conj (set " \n/~*}]<>0123456789") :EOF) character))
+             ((conj (set "# \n/~*}]<>0123456789") :EOF) character))
         (-> parser (parse :rest))
 
         ((set "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") character)

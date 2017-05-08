@@ -54,14 +54,22 @@
   [[_ _ content :as token]]
   content)
 
+(defn validate-variable-event
+  [var-name [line column]]
+  (if (re-find #"\+|\-" (name var-name))
+    (throw (Exception.
+             (format (str "Invalid variable name '%s' at line %s, column %s: "
+                          "a variable name may not contain '+' or '-'.")
+                     (name var-name)
+                     line
+                     column)))))
+
 (declare alda-event-with-metadata)
 
 (defmulti alda-event :type)
 
 (defmethod alda-event :default
   [{:keys [type] :as event}]
-  ;; temp
-  (prn :event event)
   (throw (Exception. (format "Unrecognized event: %s" type))))
 
 (defmethod alda-event :error
@@ -107,8 +115,9 @@
   (mapv alda-event-with-metadata content))
 
 (defmethod alda-event :get-variable
-  [{:keys [content]}]
-  (event/get-variable content))
+  [{:keys [content position] :as event}]
+  (validate-variable-event content position)
+  (event/get-variable (keyword content)))
 
 (defmethod alda-event :instrument-call
   [{:keys [content]}]
@@ -190,9 +199,12 @@
         (merge (when chord? {:chord? true})))))
 
 (defmethod alda-event :set-variable
-  [{:keys [content] :as event}]
+  [{:keys [content position] :as event}]
   (let [[var-name events] content]
-    (apply event/set-variable var-name (map alda-event-with-metadata events))))
+    (validate-variable-event var-name position)
+    (apply event/set-variable
+           (keyword var-name)
+           (map alda-event-with-metadata events))))
 
 (defmethod alda-event :voice
   [{:keys [content] :as event}]
@@ -210,9 +222,7 @@
       (with-meta event metadata)
       event)))
 
-(defmulti emit-event! (fn [parser event] (:type event)))
-
-(defmethod emit-event! :default
+(defn emit-event!
   [{:keys [events-ch] :as parser} event]
   (>!! events-ch (alda-event-with-metadata event))
   parser)
@@ -249,6 +259,29 @@
        (filter :open?)
        last))
 
+(def repeatable?
+  #{:clj-expr :note :rest :event-seq :get-variable :cram})
+
+(defn error
+  [parser error-content]
+  (-> parser (emit-event! {:type :error :content error-content})
+             (assoc :state :error)))
+
+(defn unexpected-token-error
+  [parser token]
+  (let [error-msg (if (sequential? token)
+                    (let [[token [line column] content] token]
+                      (format "Unexpected %s at line %s, column %s."
+                              (if (= :EOF token)
+                                "EOF"
+                                (get token-names token token))
+                              line
+                              column))
+                    (format "Unexpected token: %s." token))]
+    (-> parser (error error-msg))))
+
+(declare push-set-variable)
+
 (defn push-event
   [{:keys [stack] :as parser} event]
   (cond
@@ -260,6 +293,26 @@
 
     (= :duration (current-event-type parser))
     (-> parser append-to-parent (push-event event))
+
+    (= :repeat (:type event))
+    (if (and (repeatable? (current-event-type parser))
+             (not (:open? (current-event parser))))
+      (let [repeats         (Integer/parseInt (:content event))
+            event-to-repeat (peek stack)
+            repeat-event    (assoc event :content [repeats event-to-repeat])]
+        (-> parser
+            (update :stack #(-> %
+                                pop
+                                (conj repeat-event)))))
+      (-> parser (unexpected-token-error event)))
+
+    ;; EOF can terminate a variable definition
+    (and (= :EOF event) (= :set-variable (:type (last-open-event parser))))
+    (-> parser push-set-variable (push-event event))
+
+    ;; no other type of container can be open at the end of input
+    (and (= :EOF event) (last-open-event parser))
+    (-> parser (unexpected-token-error event))
 
     (last-open-event parser)
     (-> parser (update :stack conj event))
@@ -296,7 +349,7 @@
                                  (drop-while #(not= :set-variable (:type %)))
                                  first)
         set-var-event       {:type :set-variable
-                             :content [var-name var-events]}]
+                             :content [(keyword var-name) var-events]}]
     (-> parser
         (update :stack #(->> %
                              (drop-last (inc (count var-events)))
@@ -325,9 +378,6 @@
 (def push-event-seq
   (push-container :event-seq))
 
-(def push-voice
-  (push-container :voice))
-
 (defn push-instrument-call
   [{:keys [stack] :as parser}]
   {:pre [(= :instrument-call (:type (last-open-event parser)))]}
@@ -341,24 +391,6 @@
                              vec))
         (push-event {:type :instrument-call
                      :content contents}))))
-
-(defn error
-  [parser error-content]
-  (-> parser (emit-event! {:type :error :content error-content})
-             (assoc :state :error)))
-
-(defn unexpected-token-error
-  [parser token]
-  (let [error-msg (if (sequential? token)
-                    (let [[token [line column] content] token]
-                      (format "Unexpected %s at line %s, column %s."
-                              (if (= :EOF token)
-                                "EOF"
-                                (get token-names token token))
-                              line
-                              column))
-                    (format "Unexpected token: %s." token))]
-    (-> parser (error error-msg))))
 
 (defn ensure-parsing
   "If the parser's state is not :parsing, short-circuits the parser so that the
@@ -458,22 +490,9 @@
   [parser token]
   (-> parser (push-event-when token :octave-change)))
 
-(def repeatable?
-  #{:clj-expr :note :rest :event-seq :get-variable :cram})
-
 (defn parse-repeat
   [{:keys [stack] :as parser} token]
-  (when (token-is :repeat token)
-    (if (and (repeatable? (current-event-type parser))
-             (not (:open? (current-event parser))))
-      (let [repeats (Integer/parseInt (token-content token))
-            events-to-repeat (peek stack)]
-        (-> parser
-            (update :stack pop)
-            (push-event {:type     :repeat
-                         :position (token-position token)
-                         :content  [repeats events-to-repeat]})))
-      (-> parser (unexpected-token-error token)))))
+  (-> parser (push-event-when token :repeat)))
 
 (defn parse-voice
   [parser token]
