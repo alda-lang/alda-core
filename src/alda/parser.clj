@@ -55,6 +55,10 @@
 
    If there is an error, the error is included in the stream."
   [tokens-ch]
+  ;; alda.lisp must be required and referred in order to use inline Clojure
+  ;; expressions.
+  (when-not (resolve 'ALDA-LISP-LOADED)
+    (require '[alda.lisp :refer :all]))
   (let [events-ch (chan)]
     (thread
       (loop [parser (event/parser events-ch)]
@@ -72,6 +76,10 @@
 
    If there is an error, the error is included in the stream."
   [events-ch]
+  ;; alda.lisp must be required and referred in order to use inline Clojure
+  ;; expressions.
+  (when-not (resolve 'ALDA-LISP-LOADED)
+    (require '[alda.lisp :refer :all]))
   (let [events-ch2 (chan)]
     (thread
       (loop [parser (agg/parser events-ch2)]
@@ -89,6 +97,10 @@
    If there was an error in the a previous part of the pipeline, it is thrown
    here."
   [events-ch2]
+  ;; alda.lisp must be required and referred in order to use inline Clojure
+  ;; expressions.
+  (when-not (resolve 'ALDA-LISP-LOADED)
+    (require '[alda.lisp :refer :all]))
   (go-loop [score (score/score)]
     (let [event (<!! events-ch2)]
       (cond
@@ -124,10 +136,6 @@
 
    The default :output is :score."
   [input & {:keys [output] :or {output :score}}]
-  ;; alda.lisp must be required and referred in order to use inline Clojure
-  ;; expressions.
-  (when-not (resolve 'ALDA-LISP-LOADED)
-    (require '[alda.lisp :refer :all]))
   (case output
     :score
     (-> input tokenize parse-events aggregate-events build-score <!!)
