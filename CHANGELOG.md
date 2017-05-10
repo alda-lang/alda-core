@@ -1,5 +1,63 @@
 # CHANGELOG
 
+## Unreleased
+
+* Re-implemented the parser from the ground up in a more efficient way. The new
+  parser implementation uses core.async channels to complete the stages of the
+  parsing pipeline in parallel.
+
+  Performance is roughly the same (only slightly better) for scores under ~100
+  lines, but significantly better for larger scores.
+
+  More importantly, parsing asynchronously opens the door for us to make playing
+  a score happen almost immediately in the near future.
+
+  See [#37](https://github.com/alda-lang/alda-core/pull/37) for more details.
+
+* An added benefit of the new parser implementation is that it fixes issue
+  [#12](https://github.com/alda-lang/alda-core/issues/12). Line and column
+  numbers are now correct, and error messages are more informative when a score
+  fails to parse.
+
+* The `alda.parser-util` namespace, which included the `parse-to-*-with-context`
+  functions, has been removed. See [this commit](https://github.com/alda-lang/alda-core/pull/37/commits/5f35d659927952e99ea7ec9ab0ee2f4bb2f681aa) for more details.
+
+* The Alda parser no longer generates alda.lisp code.
+
+  Originally, the Alda parser created a score by generating alda.lisp code and
+  then evaluating it.  This actually changed some time ago to a system where the
+  parser generated a sequence of events directly and then used them to build the
+  score. We kept the code that generates alda.lisp code, even though it was no
+  longer an implementation detail of the parser, just an alternate "mode" of
+  parsing.
+
+  With these changes to the parser, it would take some additional work to
+  generate alda.lisp code. Since it is no longer necessary to do that,
+  generating alda.lisp code is no longer a feature of Alda. We could
+  re-implement this feature in the future as part of the new parser, if there is
+  a demand for it.
+
+* Miscellaneous implementation changes that could be relevant if you use Alda
+  as a Clojure library:
+
+  * `alda.parser/parse-input` returns a score map, rather than an unevaluated
+    S-expression. Calling this function will require and refer `alda.lisp` for
+    you if you haven't already done so in the namespace where you're using it.
+
+  * `alda.lisp/alda-code` does not throw an exception by itself if the code is
+    not valid Alda; instead, the output contains an Exception object, which gets
+    thrown when used inside of a score
+
+  * Whereas `alda.lisp/pitch` used to return a function to be applied to the
+    current octave and key signature, now it returns a map that includes its
+    `:letter` and `:accidentals`. This is more consistent with other alda.lisp
+    functions, and it allows notes to have equality semantics.
+
+    In other words, whereas `(= (note (pitch :c)) (note (pitch :c)))` used to be
+    `false`, now it is `true` because we aren't comparing anonymous functions.
+
+  * `(alda.lisp/barline)` now returns `{:event-type :barline}` instead of `nil`.
+
 ## 0.1.2 (2016-12-05)
 
 * Fixed [#27](https://github.com/alda-lang/alda-core/issues/27), a bug where, when using note durations specified in seconds/milliseconds, the subsequent "default" note duration was not being set.
