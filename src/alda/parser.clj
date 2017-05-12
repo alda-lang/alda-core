@@ -102,13 +102,14 @@
   (when-not (resolve 'ALDA-LISP-LOADED)
     (require '[alda.lisp :refer :all]))
   (go-loop [score (score/score)]
-    (let [event (<!! events-ch2)]
+    (let [error (atom nil)
+          event (<!! events-ch2)]
       (cond
         (nil? event)
-        score
+        (if @error (throw @error) score)
 
         (instance? Throwable event)
-        (throw event)
+        (swap! error #(or % event))
 
         :else
         (recur (score/continue score event))))))
