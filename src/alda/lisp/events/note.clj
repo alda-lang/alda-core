@@ -3,6 +3,7 @@
             [alda.lisp.model.duration :refer (calculate-duration)]
             [alda.lisp.model.event    :refer (update-score add-events)]
             [alda.lisp.model.offset   :refer (offset+)]
+            [alda.lisp.model.pitch    :refer (determine-midi-note midi->hz)]
             [alda.lisp.model.records  :refer (map->Note)]
             [alda.lisp.score.util     :refer (merge-instruments
                                               merge-voice-instruments
@@ -20,7 +21,7 @@
    :state -- any number of keys with updated values. This will be merged into
    the existing state of the instrument."
   [{:keys [instruments chord-mode cram-level current-voice] :as score}
-   {:keys [event-type pitch-fn beats ms slur?] :as event}]
+   {:keys [event-type beats ms slur?] :as event}]
   (for [{:keys [id duration duration-inside-cram time-scaling tempo
                 current-offset last-offset current-marker quantization volume
                 track-volume panning octave key-signature min-duration]
@@ -35,10 +36,10 @@
                                                  time-scaling
                                                  ms)
           quant-duration     (* full-duration quant)
-          pitch              (if (= event-type :note)
-                               (pitch-fn octave key-signature))
           midi-note          (if (= event-type :note)
-                               (pitch-fn octave key-signature :midi true))
+                               (determine-midi-note event octave key-signature))
+          pitch              (if (= event-type :note)
+                               (midi->hz midi-note))
           note               (if (= event-type :note)
                                (map->Note
                                  {:offset       current-offset

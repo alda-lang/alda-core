@@ -23,19 +23,20 @@
    If no duration is specified, the note is played for the instrument's own
    internal duration, which will be the duration last specified on a note or
    rest in that instrument's part."
-  ([pitch-fn]
-    (note pitch-fn nil false))
-  ([pitch-fn x]
+  ([pitch]
+    (note pitch nil false))
+  ([pitch x]
     ; x could be a duration or :slur
     (let [duration (when (map? x) x)
           slur?    (= x :slur)]
-      (note pitch-fn duration slur?)))
-  ([pitch-fn {:keys [beats ms slurred]} slur?]
-     {:event-type :note
-      :pitch-fn   pitch-fn
-      :beats      beats
-      :ms         ms
-      :slur?      (or slur? slurred)}))
+      (note pitch duration slur?)))
+  ([{:keys [letter accidentals]} {:keys [beats ms slurred]} slur?]
+     {:event-type  :note
+      :letter      letter
+      :accidentals accidentals
+      :beats       beats
+      :ms          ms
+      :slur?       (or slur? slurred)}))
 
 (defn pause
   "Causes every instrument in :current-instruments to rest (not play) for the
@@ -55,6 +56,21 @@
   [& events]
   {:event-type :chord
    :events     events})
+
+(defn set-attribute
+  "Public fn for setting attributes in a score.
+   e.g. (set-attribute :tempo 100)"
+  [attr val]
+  {:event-type :attribute-change
+   :attr       (:kw-name (get-attr attr))
+   :val        val})
+
+(defn set-attributes
+  "Convenience fn for setting multiple attributes at once.
+   e.g. (set-attributes :tempo 100 :volume 50)"
+  [& attrs]
+  (for [[attr val] (partition 2 attrs)]
+    (set-attribute attr val)))
 
 (defn global-attribute
   "Public fn for setting global attributes in a score.
@@ -85,7 +101,7 @@
 (defn barline
   "Barlines, at least currently, do nothing when evaluated in alda.lisp."
   []
-  nil)
+  {:event-type :barline})
 
 (defn marker
   "Places a marker at the current absolute offset. Throws an exception if there

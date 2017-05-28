@@ -30,16 +30,6 @@
     attr
     (throw (Exception. (str kw " is not a valid attribute.")))))
 
-(defn get-kw-name
-  "Given an attr (e.g. :tempo), which could be an alias (e.g. :quant for
-   :quantization), returns the correct keyword name of the attribute to which
-   it refers.
-
-   Throws an exception if the argument supplied is not a valid keyword name or
-   alias for an existing attribute."
-  [attr]
-  (:kw-name (get-attr attr)))
-
 (defn get-val-fn
   "Given an attr (e.g. :tempo) and a user-friendly val (e.g. 100), returns the
    function to apply to an instrument's existing value to update it to the new
@@ -74,19 +64,4 @@
       (if (contains? current-instruments id)
         (apply-attribute score inst attr val)
         inst))))
-
-(defn set-attribute
-  "Public fn for setting attributes in a score.
-   e.g. (set-attribute :tempo 100)"
-  [attr val]
-  {:event-type :attribute-change
-   :attr       (get-kw-name attr)
-   :val        val})
-
-(defn set-attributes
-  "Convenience fn for setting multiple attributes at once.
-   e.g. (set-attributes :tempo 100 :volume 50)"
-  [& attrs]
-  (for [[attr val] (partition 2 attrs)]
-    (set-attribute attr val)))
 

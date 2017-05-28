@@ -1,5 +1,4 @@
-(ns alda.lisp.model.duration
-  (:require [alda.lisp.model.event :refer (add-events)]))
+(ns alda.lisp.model.duration)
 
 (defn ms
   "Represents a duration value specified in milliseconds.
@@ -20,9 +19,9 @@
     (note-length number {:dots 0}))
   ([number {:keys [dots]}]
    {:pre [(number? number) (pos? number)]}
-    {:type :beats
-     :value (* (/ 4 number)
-               (- 2 (Math/pow 2 (- dots))))}))
+   {:type :beats
+    :value (* (/ 4 number)
+              (- 2 (Math/pow 2 (- dots))))}))
 
 (defn calculate-duration
   "Given a number of beats, a tempo, and a time-scaling factor, calculates the

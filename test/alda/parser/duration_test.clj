@@ -1,64 +1,64 @@
 (ns alda.parser.duration-test
   (:require [clojure.test :refer :all]
-            [alda.parser-util :refer (parse-to-lisp-with-context)]))
+            [alda.parser  :refer (parse-input)]))
 
 (deftest duration-tests
   (testing "duration"
-    (is (= (parse-to-lisp-with-context :music-data "c2")
-           '((alda.lisp/note
-               (alda.lisp/pitch :c)
-               (alda.lisp/duration (alda.lisp/note-length 2))))))))
+    (is (= (parse-input "c2" :output :events)
+           [(alda.lisp/note
+              (alda.lisp/pitch :c)
+              (alda.lisp/duration (alda.lisp/note-length 2)))]))))
 
 (deftest dot-tests
   (testing "dots"
-    (is (= (parse-to-lisp-with-context :music-data "c2..")
-           '((alda.lisp/note
-               (alda.lisp/pitch :c)
-               (alda.lisp/duration (alda.lisp/note-length 2 {:dots 2}))))))))
+    (is (= (parse-input "c2.." :output :events)
+           [(alda.lisp/note
+              (alda.lisp/pitch :c)
+              (alda.lisp/duration (alda.lisp/note-length 2 {:dots 2})))]))))
 
 (deftest millisecond-duration-tests
   (testing "duration in milliseconds"
-    (is (= (parse-to-lisp-with-context :music-data "c450ms")
-           '((alda.lisp/note
-               (alda.lisp/pitch :c)
-               (alda.lisp/duration (alda.lisp/ms 450))))))))
+    (is (= (parse-input "c450ms" :output :events)
+           [(alda.lisp/note
+              (alda.lisp/pitch :c)
+              (alda.lisp/duration (alda.lisp/ms 450)))]))))
 
 (deftest second-duration-tests
   (testing "duration in seconds"
-    (is (= (parse-to-lisp-with-context :music-data "c2s")
-           '((alda.lisp/note
-               (alda.lisp/pitch :c)
-               (alda.lisp/duration (alda.lisp/ms 2000))))))))
+    (is (= (parse-input "c2s" :output :events)
+           [(alda.lisp/note
+              (alda.lisp/pitch :c)
+              (alda.lisp/duration (alda.lisp/ms 2000)))]))))
 
 (deftest tie-and-slur-tests
   (testing "ties"
     (testing "ties"
-      (is (= (parse-to-lisp-with-context :music-data "c1~2~4")
-             '((alda.lisp/note
-                 (alda.lisp/pitch :c)
-                 (alda.lisp/duration (alda.lisp/note-length 1)
-                                     (alda.lisp/note-length 2)
-                                     (alda.lisp/note-length 4))))))
-      (is (= (parse-to-lisp-with-context :music-data "c500ms~350ms")
-             '((alda.lisp/note
-                 (alda.lisp/pitch :c)
-                 (alda.lisp/duration (alda.lisp/ms 500)
-                                     (alda.lisp/ms 350))))))
-      (is (= (parse-to-lisp-with-context :music-data "c5s~4~350ms")
-             '((alda.lisp/note
-                 (alda.lisp/pitch :c)
-                 (alda.lisp/duration (alda.lisp/ms 5000)
-                                     (alda.lisp/note-length 4)
-                                     (alda.lisp/ms 350)))))))
+      (is (= (parse-input "c1~2~4" :output :events)
+             [(alda.lisp/note
+                (alda.lisp/pitch :c)
+                (alda.lisp/duration (alda.lisp/note-length 1)
+                                    (alda.lisp/note-length 2)
+                                    (alda.lisp/note-length 4)))]))
+      (is (= (parse-input "c500ms~350ms" :output :events)
+             [(alda.lisp/note
+                (alda.lisp/pitch :c)
+                (alda.lisp/duration (alda.lisp/ms 500)
+                                    (alda.lisp/ms 350)))]))
+      (is (= (parse-input "c5s~4~350ms" :output :events)
+             [(alda.lisp/note
+                (alda.lisp/pitch :c)
+                (alda.lisp/duration (alda.lisp/ms 5000)
+                                    (alda.lisp/note-length 4)
+                                    (alda.lisp/ms 350)))])))
     (testing "slurs"
-      (is (= (parse-to-lisp-with-context :music-data "c4~")
-             '((alda.lisp/note
-                 (alda.lisp/pitch :c)
-                 (alda.lisp/duration (alda.lisp/note-length 4))
-                 :slur))))
-      (is (= (parse-to-lisp-with-context :music-data "c420ms~")
-             '((alda.lisp/note
-                 (alda.lisp/pitch :c)
-                 (alda.lisp/duration (alda.lisp/ms 420))
-                 :slur)))))))
+      (is (= (parse-input "c4~" :output :events)
+             [(alda.lisp/note
+                (alda.lisp/pitch :c)
+                (alda.lisp/duration (alda.lisp/note-length 4))
+                :slur)]))
+      (is (= (parse-input "c420ms~" :output :events)
+             [(alda.lisp/note
+                (alda.lisp/pitch :c)
+                (alda.lisp/duration (alda.lisp/ms 420))
+                :slur)])))))
 

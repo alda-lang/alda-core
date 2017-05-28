@@ -1,6 +1,8 @@
 (ns alda.lisp.notes-test
   (:require [clojure.test             :refer :all]
-            [alda.test-helpers        :refer (get-instrument dur->ms)]
+            [alda.test-helpers        :refer (get-instrument
+                                              dur->ms
+                                              calculate-pitch)]
             [alda.lisp                :refer :all]))
 
 (deftest note-tests
@@ -8,7 +10,7 @@
     (let [s     (score (part "piano"))
           piano (get-instrument s "piano")
           start (:current-offset piano)
-          c     ((pitch :c) (:octave piano) (:key-signature piano))
+          c     (calculate-pitch :c [] (:octave piano) (:key-signature piano))
           s     (continue s
                   (note (pitch :c) (duration (note-length 4)) :slur))
           piano (get-instrument s "piano")

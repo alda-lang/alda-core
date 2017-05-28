@@ -40,4 +40,8 @@
   (require ns)
   (import-all-vars ns))
 
+;; This can be used to determine whether alda.lisp has been loaded into an
+;; environment where it is needed, e.g. parsing a score that includes inline
+;; Clojure expressions like (tempo! 80)
+(declare ALDA-LISP-LOADED)
 

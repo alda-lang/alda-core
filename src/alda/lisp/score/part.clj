@@ -7,7 +7,7 @@
             [alda.lisp.events.voice     :refer (end-voice-group)]
             [alda.lisp.model.event      :refer (update-score)]
             [alda.lisp.model.instrument :refer (*stock-instruments*)]
-            [alda.parser-util           :refer (parse-to-lisp-with-context)]))
+            [alda.parser                :refer (parse-input)]))
 
 (defn- generate-id
   [name]
@@ -189,11 +189,22 @@
                                    instances)
       :current-instruments (set (map :id instances)))))
 
-(defn- parse-instrument-call [s]
-  (parse-to-lisp-with-context :calls (-> s
-                                         (str/replace #":$" "")
-                                         (str/replace #"'" "\"")
-                                         (str \:))))
+(defn- invalid-instrument-call-error!
+  [x]
+  (throw (Exception. (str "Invalid instrument call: " (pr-str x)))))
+
+(defn- parse-instrument-call
+  [s]
+  (let [events (-> s
+                   (str/replace #":$" "")
+                   (str/replace #"'" "\"")
+                   (str \:)
+                   (parse-input :output :events))
+        part   (first events)
+        call   (:instrument-call part)]
+    (if (and (= 1 (count events)) call)
+      call
+      (invalid-instrument-call-error! s))))
 
 (defmethod update-score :part
   [score {:keys [instrument-call events] :as part}]
@@ -205,8 +216,7 @@
                           (parse-instrument-call instrument-call)
 
                           :else
-                          (throw (Exception. (str "Invalid instrument call:"
-                                                  (pr-str instrument-call)))))
+                          (invalid-instrument-call-error! instrument-call))
         score (-> score
                   end-voice-group
                   (determine-current-instruments instrument-call))]

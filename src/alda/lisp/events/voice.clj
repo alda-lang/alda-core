@@ -27,11 +27,13 @@
 (defmethod update-score :voice
   [{:keys [instruments] :as score}
    {:keys [number events] :as voice}]
-  (let [score (-> score
-                  (assoc :current-voice number)
-                  (update-in [:voice-instruments number]
-                     #(if % % instruments)))]
-    (reduce update-score score events)))
+  (if (zero? number)
+    (-> score end-voice-group)
+    (let [score (-> score
+                    (assoc :current-voice number)
+                    (update-in [:voice-instruments number]
+                               #(if % % instruments)))]
+      (reduce update-score score events))))
 
 (defmethod update-score :end-voice-group
   [score _]

@@ -2,7 +2,7 @@
   (:require [clojure.test    :refer :all]
             [clojure.java.io :as    io]
             [alda.parser     :refer (parse-input)]
-            [instaparse.core :as    insta]
+            [alda.lisp.score :as    score]
             [io.aviso.ansi   :refer :all]))
 
 (def example-scores
@@ -20,6 +20,7 @@
    bach_cello_suite_no_1
    clapping_music
    debussy_quartet
+   dot_accessor
    entropy
    gau
    hello_world
@@ -32,6 +33,7 @@
    phase
    poly
    printing
+   seconds_and_milliseconds
    variables
    variables-2
    ])
@@ -64,57 +66,42 @@
       (let [score-text (-> (str score ".alda")
                            io/resource
                            io/file
-                           slurp)]
-        (let [score-code (atom nil)]
-          (testing (format "parsing (as code) %s.alda" score)
-            (println \newline (str score ".alda"))
-            (printf "   Parsing as code...        ")
-            (flush)
-            (is
-              (try
-                (let [[result time-ms] (time+ (parse-input score-text :lisp))]
-                  (println (green "OK") (format "(%s ms)" time-ms))
-                  (reset! score-code result)
-                  true)
-                (catch Exception e
-                  (println (red "FAIL"))
-                  (throw e)))))
-          (testing (format "evaluating score code parsed from %s.alda" score)
-            (printf "   Evaluating score code...  ")
-            (flush)
-            (is
-              (try
-                (let [[result time-ms] (time+ (eval @score-code))]
-                  (println (green "OK") (format "(%s ms)" time-ms))
-                  true)
-                (catch Exception e
-                  (println (red "FAIL"))
-                  (throw e))))))
-
-        (println)
-
-        (let [parsed-score (atom nil)]
-          (testing (format "parsing (as score) %s.alda" score)
-            (printf "   Parsing as score...       ")
-            (flush)
-            (is
-              (try
-                (let [[result time-ms] (time+ (parse-input score-text :events))]
-                  (println (green "OK") (format "(%s ms)" time-ms))
-                  (reset! parsed-score result)
-                  true)
-                (catch Exception e
-                  (println (red "FAIL"))
-                  (throw e)))))
-          (testing (format "realizing parsed score %s.alda" score)
-            (printf "   Realizing parsed score... ")
-            (flush)
-            (is
-              (try
-                (let [[result time-ms]
-                      (time+ (apply (resolve 'alda.lisp/score) @parsed-score))]
-                  (println (green "OK") (format "(%s ms)" time-ms))
-                  true)
-                (catch Exception e
-                  (println (red "FAIL"))
-                  (throw e))))))))))
+                           slurp)
+            events     (atom nil)]
+        (testing (format "[%s.alda] parsing events" score)
+          (println \newline (str score ".alda"))
+          (printf "   Parsing events...             ")
+          (flush)
+          (is
+            (try
+              (let [[result time-ms] (time+ (doall
+                                              (parse-input score-text
+                                                           :output :events)))]
+                (println (green "OK") (format "(%s ms)" time-ms))
+                (reset! events result)
+                true)
+              (catch Exception e
+                (println (red "FAIL"))
+                (throw e)))))
+        (testing (format "[%s.alda] building score from parsed events" score)
+          (printf "   Building score from events... ")
+          (flush)
+          (is
+            (try
+              (let [[result time-ms] (time+ (apply score/score @events))]
+                (println (green "OK") (format "(%s ms)" time-ms))
+                true)
+              (catch Exception e
+                (println (red "FAIL"))
+                (throw e)))))
+        (testing (format "[%s.alda] parsing score" score)
+          (printf "   Parsing score directly...     ")
+          (flush)
+          (is
+            (try
+              (let [[result time-ms] (time+ (parse-input score-text))]
+                (println (green "OK") (format "(%s ms)" time-ms))
+                true)
+              (catch Exception e
+                (println (red "FAIL"))
+                (throw e)))))))))

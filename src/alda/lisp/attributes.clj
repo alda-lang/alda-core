@@ -1,10 +1,10 @@
 (ns alda.lisp.attributes
-  (:require [alda.lisp.events          :refer (global-attribute)]
-            [alda.lisp.model.attribute :refer (set-attribute
-                                               *attribute-table*)]
+  (:require [alda.lisp.events          :refer (set-attribute
+                                               global-attribute)]
+            [alda.lisp.model.attribute :refer (*attribute-table*)]
             [alda.lisp.model.key       :refer (get-key-signature)]
             [alda.lisp.model.records   :refer (->AbsoluteOffset
-                                                      ->Attribute)]))
+                                               ->Attribute)]))
 
 (comment
   "The :attributes key in an instrument functions like the :global-attributes
