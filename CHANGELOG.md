@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## 0.2.0 (2017-05-27)
 
 * Re-implemented the parser from the ground up in a more efficient way. The new
   parser implementation uses core.async channels to complete the stages of the
