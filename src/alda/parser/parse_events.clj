@@ -337,18 +337,28 @@
     (-> parser (update :stack #(-> % pop (conj current-event))))))
 
 (defn push-set-variable
-  [{:keys [stack] :as parser}]
+  [parser]
   {:pre [(= :set-variable (:type (last-open-event parser)))]}
-  (let [var-events          (->> stack
-                                 reverse
-                                 (take-while #(not= :set-variable (:type %)))
-                                 reverse)
-        {var-name :content} (->> stack
-                                 reverse
-                                 (drop-while #(not= :set-variable (:type %)))
-                                 first)
-        set-var-event       {:type :set-variable
-                             :content [(keyword var-name) var-events]}]
+  (let [{:keys [stack] :as parser}
+        (if (= :duration (current-event-type parser))
+          (-> parser append-to-parent)
+          parser)
+
+        var-events
+        (->> stack
+             reverse
+             (take-while #(not= :set-variable (:type %)))
+             reverse)
+
+        {var-name :content}
+        (->> stack
+             reverse
+             (drop-while #(not= :set-variable (:type %)))
+             first)
+
+        set-var-event
+        {:type :set-variable
+         :content [(keyword var-name) var-events]}]
     (-> parser
         (update :stack #(->> %
                              (drop-last (inc (count var-events)))
@@ -357,14 +367,20 @@
 
 (defn- push-container
   [container]
-  (fn [{:keys [stack] :as parser}]
+  (fn [parser]
     {:pre [(= container (:type (last-open-event parser)))]}
-    (let [events (->> stack
-                      reverse
-                      (take-while #(not (and (= container (:type %))
-                                             (:open? %))))
-                      reverse
-                      vec)]
+    (let [{:keys [stack] :as parser}
+          (if (= :duration (current-event-type parser))
+            (-> parser append-to-parent)
+            parser)
+
+          events
+          (->> stack
+               reverse
+               (take-while #(not (and (= container (:type %))
+                                      (:open? %))))
+               reverse
+               vec)]
       (-> parser
           (update :stack #(->> %
                                (drop-last (inc (count events)))

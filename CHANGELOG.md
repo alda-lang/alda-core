@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 0.2.1 (2017-05-28)
+
+* Fixed a handful of bugs in the new parser implementation where a one-line
+  variable definition, e.g.:
+
+  ```
+  foo = d8 e f+ g a b4.
+  ```
+
+  ...might fail to parse if it ends with certain events.
+
 ## 0.2.0 (2017-05-27)
 
 * Re-implemented the parser from the ground up in a more efficient way. The new

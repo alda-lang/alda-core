@@ -28,6 +28,7 @@
    :note              "note"
    :note-length       "note length"
    :note-rest-or-name "note, rest, or name"
+   :octave-change     "octave change"
    :repeat            "repeat"
    :rest              "rest"
    :slash             "'/'"})
@@ -358,11 +359,13 @@
     (-> parser (read-to-new-buffer :colon character)
                (emit-token! :pop-stack? true))))
 
+(declare parse-newline)
+
 (defn parse-comment
   [parser character]
   (when (currently-parsing? parser :comment)
     (if (= \newline character)
-      (-> parser (emit-token! :pop-stack? true) next-line)
+      (-> parser (emit-token! :pop-stack? true) (parse-newline character))
       (-> parser (read-to-buffer character)))))
 
 (defn parse-cram-open
@@ -382,8 +385,11 @@
   [p c]
   (when (currently-parsing? p :duration)
     (condp contains? c
-      #{\space \newline}
+      #{\space}
       (-> p (advance c))
+
+      #{\newline}
+      (-> p (parse-newline c))
 
       #{\0 \1 \2 \3 \4 \5 \6 \7 \8 \9}
       (-> p (start-parsing-note-length c))
@@ -548,8 +554,11 @@
         (-> parser (emit-token! :pop-stack? true)
                    (read-character! character))
 
-        (#{\space \newline} character)
+        (= \space character)
         (-> parser (advance character))
+
+        (= \newline character)
+        (-> parser (parse-newline character))
 
         :else
         (-> parser (unexpected-char-error character))))))
@@ -559,8 +568,11 @@
   (when (currently-parsing? parser :rest)
     (let [note-letter (current-token-content parser)]
       (condp contains? character
-        #{\space \newline :EOF}
+        #{\space :EOF}
         (-> parser (advance character) (emit-token! :pop-stack? true))
+
+        #{\newline}
+        (-> parser (parse-newline character) (emit-token! :pop-stack? true))
 
         #{\1 \2 \3 \4 \5 \6 \7 \8 \9}
         (-> parser (emit-token! :pop-stack? true)
@@ -645,8 +657,11 @@
           #{\0 \1 \2 \3 \4 \5 \6 \7 \8 \9}
           (-> parser (read-to-buffer character))
 
-          #{\space \newline :EOF}
+          #{\space :EOF}
           (-> parser (emit-token! :pop-stack? true) (advance character))
+
+          #{\newline}
+          (-> parser (emit-token! :pop-stack? true) (parse-newline character))
 
           ; else
           (-> parser (unexpected-char-error character)))))))
