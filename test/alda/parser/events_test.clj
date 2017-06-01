@@ -14,12 +14,30 @@
     (is (= [(alda.lisp/note (alda.lisp/pitch :c :sharp))]
            (parse-input "c+" :output :events)))
     (is (= [(alda.lisp/note (alda.lisp/pitch :b :flat))]
-           (parse-input "b-" :output :events))))
+           (parse-input "b-" :output :events)))
+    (is (= [[(alda.lisp/note (alda.lisp/pitch :c))
+             (alda.lisp/note (alda.lisp/pitch :d))
+             (alda.lisp/note (alda.lisp/pitch :c))]]
+           (parse-input "[c d c]" :output :events)))
+    (is (= [[(alda.lisp/note (alda.lisp/pitch :c))
+             (alda.lisp/note (alda.lisp/pitch :d))
+             (alda.lisp/note (alda.lisp/pitch :c))]]
+           (parse-input "[c d c ]" :output :events))))
   (testing "rests"
     (is (= [(alda.lisp/pause)]
            (parse-input "r" :output :events))
         (= [(alda.lisp/pause (alda.lisp/duration (alda.lisp/note-length 1)))]
-           (parse-input "r1" :output :events)))))
+           (parse-input "r1" :output :events)))
+    (is (= [[(alda.lisp/note (alda.lisp/pitch :c))
+             (alda.lisp/note (alda.lisp/pitch :d))
+             (alda.lisp/note (alda.lisp/pitch :c))
+             (alda.lisp/pause)]]
+           (parse-input "[c d c r]" :output :events)))
+    (is (= [[(alda.lisp/note (alda.lisp/pitch :c))
+             (alda.lisp/note (alda.lisp/pitch :d))
+             (alda.lisp/note (alda.lisp/pitch :c))
+             (alda.lisp/pause)]]
+           (parse-input "[c d c r ]" :output :events)))))
 
 (deftest chord-tests
   (testing "chords"

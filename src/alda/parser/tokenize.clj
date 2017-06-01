@@ -579,7 +579,8 @@
                    (start-parsing-duration character))
 
         ; else
-        (-> parser (unexpected-char-error character))))))
+        (-> parser (emit-token! :pop-stack? true)
+                   (read-character! character))))))
 
 (defn parse-slash
   [parser character]

@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.2.2 (2017-05-31)
+
+* Fixed issue [#41](https://github.com/alda-lang/alda-core/issues/41), where `r`
+  followed by e.g. `]` would trigger a parser error.
+
 ## 0.2.1 (2017-05-28)
 
 * Fixed a handful of bugs in the new parser implementation where a one-line
