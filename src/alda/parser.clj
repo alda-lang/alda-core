@@ -106,7 +106,7 @@
           event (<!! events-ch2)]
       (cond
         (nil? event)
-        (if @error (throw @error) score)
+        (if @error @error score)
 
         (instance? Throwable event)
         (swap! error #(or % event))
@@ -125,7 +125,8 @@
    If an :output key is supplied, the result will depend on the value of that
    key:
 
-   :score => an Alda score map, ready to be performed by the sound engine
+   :score => an Alda score map, ready to be performed by the sound engine. If
+   there is an error, the error is thrown.
 
    :events => a lazy sequence of Alda events, which will produce a complete
    score when applied sequentially to a new score. Note that the sequence may
@@ -139,7 +140,15 @@
   [input & {:keys [output] :or {output :score}}]
   (case output
     :score
-    (-> input tokenize parse-events aggregate-events build-score <!!)
+    (let [score (-> input
+                    tokenize
+                    parse-events
+                    aggregate-events
+                    build-score
+                    <!!)]
+      (if (instance? Throwable score)
+        (throw score)
+        score))
 
     :events
     (-> input tokenize parse-events aggregate-events stream-seq)

@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 0.3.0 (2017-06-17)
+
+* Fixed error handling in `parse-input` when parsing in `:score` mode (which is
+  the default). I overlooked the fact that core-async `go-loop` doesn't play
+  nice with error handling, so you have to do something like send the error on
+  the channel and then throw it outside of the `go-loop`.
+
+  Before this fix, if an error occurred, the server would attempt to send the
+  exception object itself as a success response and then fail because the
+  exception is not serializable as JSON.
+
+  Now, with `parse-input` properly throwing exceptions, the server will send an
+  error response if one is thrown.
+
 ## 0.2.2 (2017-05-31)
 
 * Fixed issue [#41](https://github.com/alda-lang/alda-core/issues/41), where `r`
