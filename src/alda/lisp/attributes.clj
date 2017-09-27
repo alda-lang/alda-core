@@ -57,10 +57,43 @@
               (pos? x))]}
   (constantly x))
 
+(defn- parse-note-length
+  "Converts string representation of note length into number of beats"
+  [note]
+  (let [[_ number _ dots]  (re-matches #"(\d+(\.\d+)?)(\.*)" note)
+        {beats :value}     (note-length
+                            (Float/parseFloat number)
+                            {:dots (count dots)})]
+    (if number
+      beats
+      (throw (Exception. (format "Invalid note length: %s" content))))))
+
 (defattribute tempo
-  "Current tempo. Used to calculate the duration of notes."
+  "Current tempo. Used to calculate the duration of notes.
+   Can be defined in terms of non-quarter notes."
   :initial-val 120
-  :transform pos-num)
+  :transform
+    (fn ([val]
+         {:pre [(or
+                  (and (number? val) (pos? val))
+                  (map? val))]}
+         (constantly
+           (let [{:keys [note-length value]} val]
+           (cond
+             (and (map? val) (string? note-length))
+               (* (parse-note-length note-length) value)
+             (and (map? val) (number? note-length))
+               (* note-length value))
+             :else
+               (val))))))
+
+(defn tempo
+  "Higher-level function that allows for an additional parameter to represent
+   the tempo in terms of non-quarter notes (e.g.(tempo 2 60) <--> (tempo 120)).
+   The defattribute macro only generates single-argument functions, hence
+   passing the two arguments together to be unwrapped by the transform-fn"
+  [note-length val]
+  (tempo {:note-length note-length :value val}))
 
 (defattribute duration
   "Default note duration in beats or milliseconds. (default: beats)"
