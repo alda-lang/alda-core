@@ -114,7 +114,7 @@
     (= :EOF x)
     parser
 
-    (#{\newline "\n"}x)
+    (#{\newline "\n"} x)
     (-> parser next-line)
 
     :else
