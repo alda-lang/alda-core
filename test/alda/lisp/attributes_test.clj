@@ -128,6 +128,16 @@
         (is (== (:beats (:duration piano)) 3.5)))
 
       (let [s     (continue s
+                    (set-note-length 1))
+            piano (get-instrument s "piano")]
+        (is (== (:beats (:duration piano)) 4)))
+
+      (let [s     (continue s
+                    (set-note-length "2.."))
+            piano (get-instrument s "piano")]
+        (is (== (:beats (:duration piano)) 3.5)))
+
+      (let [s     (continue s
                     (note (pitch :c)
                           (duration (note-length 1) (note-length 1))))
             piano (get-instrument s "piano")]

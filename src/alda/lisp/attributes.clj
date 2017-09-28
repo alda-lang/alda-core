@@ -4,7 +4,8 @@
             [alda.lisp.model.attribute :refer (*attribute-table*)]
             [alda.lisp.model.key       :refer (get-key-signature)]
             [alda.lisp.model.records   :refer (->AbsoluteOffset
-                                               ->Attribute)]))
+                                               ->Attribute)]
+            [alda.lisp.model.duration  :refer (note-length)]))
 
 (comment
   "The :attributes key in an instrument functions like the :global-attributes
@@ -79,6 +80,26 @@
 
                    :else
                    {:beats val}))))
+
+;; Converts string/number representation of note length into number of beats
+(defn- parse-note-length
+  [length]
+  {:pre [(or (string? length) (number? length))]}
+  (cond
+    (string? length)
+    (let [[_ number _ dots]  (re-matches #"(\d+(\.\d+)?)(\.*)" length)]
+      (if number
+        (note-length (Float/parseFloat number) {:dots (count dots)})
+        (throw (Exception. (format "Invalid note length: %s" length)))))
+
+    :else
+    (note-length length)))
+
+(defn set-note-length
+  "Sets note duration in terms of alda note-lengths
+   (e.g. quarter note = 4, dotted note = \"4.\")"
+  [length]
+  (set-duration (:value (parse-note-length length))))
 
 (defattribute octave
   "Current octave. Used to calculate the pitch of notes."

@@ -7,14 +7,22 @@
     (is (= (parse-input "c2" :output :events)
            [(alda.lisp/note
               (alda.lisp/pitch :c)
-              (alda.lisp/duration (alda.lisp/note-length 2)))]))))
+              (alda.lisp/duration (alda.lisp/note-length 2)))]))
+    (is (= (parse-input "c0.5" :output :events)
+           [(alda.lisp/note
+              (alda.lisp/pitch :c)
+              (alda.lisp/duration (alda.lisp/note-length 0.5)))]))))
 
 (deftest dot-tests
   (testing "dots"
     (is (= (parse-input "c2.." :output :events)
            [(alda.lisp/note
               (alda.lisp/pitch :c)
-              (alda.lisp/duration (alda.lisp/note-length 2 {:dots 2})))]))))
+              (alda.lisp/duration (alda.lisp/note-length 2 {:dots 2})))]))
+    (is (= (parse-input "c0.5.." :output :events)
+           [(alda.lisp/note
+              (alda.lisp/pitch :c)
+              (alda.lisp/duration (alda.lisp/note-length 0.5 {:dots 2})))]))))
 
 (deftest millisecond-duration-tests
   (testing "duration in milliseconds"
@@ -32,33 +40,38 @@
 
 (deftest tie-and-slur-tests
   (testing "ties"
-    (testing "ties"
-      (is (= (parse-input "c1~2~4" :output :events)
-             [(alda.lisp/note
-                (alda.lisp/pitch :c)
-                (alda.lisp/duration (alda.lisp/note-length 1)
-                                    (alda.lisp/note-length 2)
-                                    (alda.lisp/note-length 4)))]))
-      (is (= (parse-input "c500ms~350ms" :output :events)
-             [(alda.lisp/note
-                (alda.lisp/pitch :c)
-                (alda.lisp/duration (alda.lisp/ms 500)
-                                    (alda.lisp/ms 350)))]))
-      (is (= (parse-input "c5s~4~350ms" :output :events)
-             [(alda.lisp/note
-                (alda.lisp/pitch :c)
-                (alda.lisp/duration (alda.lisp/ms 5000)
-                                    (alda.lisp/note-length 4)
-                                    (alda.lisp/ms 350)))])))
-    (testing "slurs"
-      (is (= (parse-input "c4~" :output :events)
-             [(alda.lisp/note
-                (alda.lisp/pitch :c)
-                (alda.lisp/duration (alda.lisp/note-length 4))
-                :slur)]))
-      (is (= (parse-input "c420ms~" :output :events)
-             [(alda.lisp/note
-                (alda.lisp/pitch :c)
-                (alda.lisp/duration (alda.lisp/ms 420))
-                :slur)])))))
+    (is (= (parse-input "c1~2~4" :output :events)
+           [(alda.lisp/note
+              (alda.lisp/pitch :c)
+              (alda.lisp/duration (alda.lisp/note-length 1)
+                                  (alda.lisp/note-length 2)
+                                  (alda.lisp/note-length 4)))]))
+    (is (= (parse-input "c1.5~2.5~4" :output :events)
+           [(alda.lisp/note
+              (alda.lisp/pitch :c)
+              (alda.lisp/duration (alda.lisp/note-length 1.5)
+                                  (alda.lisp/note-length 2.5)
+                                  (alda.lisp/note-length 4)))]))
+    (is (= (parse-input "c500ms~350ms" :output :events)
+           [(alda.lisp/note
+              (alda.lisp/pitch :c)
+              (alda.lisp/duration (alda.lisp/ms 500)
+                                  (alda.lisp/ms 350)))]))
+    (is (= (parse-input "c5s~4~350ms" :output :events)
+           [(alda.lisp/note
+              (alda.lisp/pitch :c)
+              (alda.lisp/duration (alda.lisp/ms 5000)
+                                  (alda.lisp/note-length 4)
+                                  (alda.lisp/ms 350)))])))
+  (testing "slurs"
+    (is (= (parse-input "c4~" :output :events)
+           [(alda.lisp/note
+              (alda.lisp/pitch :c)
+              (alda.lisp/duration (alda.lisp/note-length 4))
+              :slur)]))
+    (is (= (parse-input "c420ms~" :output :events)
+           [(alda.lisp/note
+              (alda.lisp/pitch :c)
+              (alda.lisp/duration (alda.lisp/ms 420))
+              :slur)]))))
 

@@ -159,4 +159,3 @@
         (if (instance? Throwable event)
           (throw event)))
       events)))
-

@@ -136,7 +136,7 @@
         accidentals    (-> (for [{:keys [type content]} more
                                  :when (= :accidentals type)]
                              (map {\+ :sharp \- :flat \_ :natural} content))
-                            flatten)
+                           flatten)
         pitch          (apply pitch/pitch (keyword (:content letter)) accidentals)
         duration       (-> (for [{:keys [type] :as event} more
                                  :when (= :duration type)]
@@ -150,12 +150,12 @@
 
 (defmethod alda-event :note-length
   [{:keys [content]}]
-  (let [[_ number dots]  (re-matches #"(\d+)(\.*)" content)
+  (let [[_ number _ dots]  (re-matches #"(\d+(\.\d+)?)(\.*)" content)
         [_ seconds]      (re-matches #"(\d+)s" content)
         [_ milliseconds] (re-matches #"(\d+)ms" content)]
     (cond
       number
-      (dur/note-length (Integer/parseInt number) {:dots (count dots)})
+      (dur/note-length (Float/parseFloat number) {:dots (count dots)})
 
       seconds
       (dur/ms (* 1000 (Integer/parseInt seconds)))

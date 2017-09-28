@@ -5,8 +5,7 @@
   {:state          :parsing ; parsing, done, or error
    :line           1
    :column         1
-   :stack          []       ; context for nesting tokens
-   })
+   :stack          []})       ; context for nesting tokens
 
 (defn parser
   [tokens-ch]
@@ -497,7 +496,7 @@
         (-> parser (read-to-buffer character))
 
         #{\.}
-        (if (re-matches #"\d+\.*" buffer)
+        (if (re-matches #"(\d+\.)?\d+\.*" buffer)
           (-> parser (read-to-buffer character))
           (-> parser (unexpected-char-error character)))
 
@@ -574,7 +573,7 @@
         #{\newline}
         (-> parser (parse-newline character) (emit-token! :pop-stack? true))
 
-        #{\1 \2 \3 \4 \5 \6 \7 \8 \9}
+        #{\0 \1 \2 \3 \4 \5 \6 \7 \8 \9}
         (-> parser (emit-token! :pop-stack? true)
                    (start-parsing-duration character))
 
