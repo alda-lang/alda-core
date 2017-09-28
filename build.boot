@@ -5,17 +5,17 @@
                     ; dev
                     [adzerk/bootlaces            "0.1.13"       :scope "test"]
                     [adzerk/boot-test            "1.2.0"        :scope "test"]
-                    [alda/sound-engine-clj       "0.1.2"        :scope "test"]
+                    [alda/sound-engine-clj       "0.3.1"        :scope "test"]
                     [org.clojure/tools.namespace "0.3.0-alpha3" :scope "test"]
                     ; used in examples_test.clj
-                    [io.aviso/pretty             "0.1.33"       :scope "test"]
+                    [io.aviso/pretty             "0.1.34"       :scope "test"]
 
                     ; alda.core
                     [org.clojure/clojure    "1.8.0"]
-                    [org.clojure/core.async "0.3.442"]
+                    [org.clojure/core.async "0.3.443"]
                     [com.taoensso/timbre    "4.10.0"]
                     [djy                    "0.1.4"]
-                    [potemkin               "0.4.3"]
+                    [potemkin               "0.4.4"]
                     [clj_manifest           "0.2.0"]])
 
 (require '[adzerk.bootlaces :refer :all]
