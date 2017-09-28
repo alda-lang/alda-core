@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## 0.3.1 (2017-09-28)
+
+Thanks, [pzxwang] for contributing the changes in this release in PR [#50](https://github.com/alda-lang/alda-core/pull/50)!
+
+* Non-integer decimal note lengths are now accepted. For example, `c0.5` (or a
+  double whole note, in Western classical notation) is twice the length of `c1`
+  (a whole note).
+
+* Added a convenient `set-note-length` function to alda.lisp.
+
+  This is an alternative to `set-duration`, which, somewhat unintuitively, sets
+  the current duration to its argument as a number of beats.
+
+  To set the note length to a quarter note (1 beat), for example, you can now
+  use either `(set-duration 1)` or `(set-note-length 4)`.
+
 ## 0.3.0 (2017-06-17)
 
 * Fixed error handling in `parse-input` when parsing in `:score` mode (which is
@@ -104,3 +120,4 @@
 
 [bbqbaron]: https://github.com/bbqbaron
 [damiendevienne]: https://github.com/damiendevienne
+[pzxwang]: https://github.com/pzxwang
