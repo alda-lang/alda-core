@@ -36,11 +36,7 @@
     (is (= (parse-input "c2s" :output :events)
            [(alda.lisp/note
               (alda.lisp/pitch :c)
-              (alda.lisp/duration (alda.lisp/ms 2000)))]))
-    (is (= (parse-input "c2.5s" :output :events)
-           [(alda.lisp/note
-              (alda.lisp/pitch :c)
-              (alda.lisp/duration (alda.lisp/ms 2500)))]))))
+              (alda.lisp/duration (alda.lisp/ms 2000)))]))))
 
 (deftest tie-and-slur-tests
   (testing "ties"

@@ -64,7 +64,7 @@
   (let [{:keys [kw-name transform-fn]} (get-attr attr)]
   {:event-type :attribute-change
    :attr       kw-name
-   :val        (transform-fn })
+   :val        val}))
 
 (defn set-attributes
   "Convenience fn for setting multiple attributes at once.
