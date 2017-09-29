@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 0.3.2 (2017-09-29)
+
+* Fixed a parser bug where a rest `r` followed by a newline inside of a variable
+  definition would not be considered part of the variable definition.
+
+  Thanks, [elyisgreat], for reporting this issue!
+
 ## 0.3.1 (2017-09-28)
 
 Thanks, [pzxwang] for contributing the changes in this release in PR [#50](https://github.com/alda-lang/alda-core/pull/50)!

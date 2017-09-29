@@ -469,23 +469,22 @@
 (defn parse-note
   [parser character]
   (when (currently-parsing? parser :note)
-    (let [note-letter (current-token-content parser)]
-      (condp contains? character
-        #{\+ \- \_}
-        (-> parser (emit-token! :pop-stack? true)
-                   (start-parsing-accidentals character))
+    (condp contains? character
+      #{\+ \- \_}
+      (-> parser (emit-token! :pop-stack? true)
+          (start-parsing-accidentals character))
 
-        #{\0 \1 \2 \3 \4 \5 \6 \7 \8 \9}
-        (-> parser (emit-token! :pop-stack? true)
-                   (start-parsing-duration character))
+      #{\0 \1 \2 \3 \4 \5 \6 \7 \8 \9}
+      (-> parser (emit-token! :pop-stack? true)
+          (start-parsing-duration character))
 
-        #{\~}
-        (-> parser (emit-token! :pop-stack? true)
-                   (parse-tie character))
+      #{\~}
+      (-> parser (emit-token! :pop-stack? true)
+          (parse-tie character))
 
-        ; else
-        (-> parser (emit-token! :pop-stack? true)
-                   (read-character! character))))))
+      ; else
+      (-> parser (emit-token! :pop-stack? true)
+          (read-character! character)))))
 
 (defn parse-note-length
   [parser character]
@@ -565,21 +564,21 @@
 (defn parse-rest
   [parser character]
   (when (currently-parsing? parser :rest)
-    (let [note-letter (current-token-content parser)]
-      (condp contains? character
-        #{\space :EOF}
-        (-> parser (advance character) (emit-token! :pop-stack? true))
+    (condp contains? character
+      #{\space :EOF}
+      (-> parser
+          (advance character)
+          (emit-token! :pop-stack? true))
 
-        #{\newline}
-        (-> parser (parse-newline character) (emit-token! :pop-stack? true))
+      #{\0 \1 \2 \3 \4 \5 \6 \7 \8 \9}
+      (-> parser
+          (emit-token! :pop-stack? true)
+          (start-parsing-duration character))
 
-        #{\0 \1 \2 \3 \4 \5 \6 \7 \8 \9}
-        (-> parser (emit-token! :pop-stack? true)
-                   (start-parsing-duration character))
-
-        ; else
-        (-> parser (emit-token! :pop-stack? true)
-                   (read-character! character))))))
+      ; else
+      (-> parser
+          (emit-token! :pop-stack? true)
+          (read-character! character)))))
 
 (defn parse-slash
   [parser character]
