@@ -52,7 +52,50 @@
                     (key-sig [:e :minor])))
           piano (get-instrument s "piano")]
       (is (= {:f [:sharp]}
-             (:key-signature piano)))))
+             (:key-signature piano))))
+    (let [s     (score
+                 (part "piano"
+                   (key-sig [:c :lydian])))
+         piano (get-instrument s "piano")]
+     (is (= {:f [:sharp]}
+            (:key-signature piano))))
+    (let [s     (score
+                  (part "piano"
+                    (key-sig [:d :mixolydian])))
+          piano (get-instrument s "piano")]
+      (is (= {:f [:sharp]}
+             (:key-signature piano))))
+    (let [s     (score
+                (part "piano"
+                  (key-sig [:e :dorian])))
+        piano (get-instrument s "piano")]
+    (is (= {:f [:sharp], :c [:sharp]}
+           (:key-signature piano))))
+    (let [s     (score
+                 (part "piano"
+                   (key-sig [:f :phrygian])))
+         piano (get-instrument s "piano")]
+     (is (= {:b [:flat] :e [:flat] :a [:flat] :d [:flat] :g [:flat]}
+            (:key-signature piano))))
+    (let [s     (score
+                 (part "piano"
+                   (key-sig [:g :locrian])))
+         piano (get-instrument s "piano")]
+     (is (= {:b [:flat] :e [:flat] :a [:flat] :d [:flat] }
+            (:key-signature piano))))
+    (let [s     (score
+                 (part "piano"
+                   (key-sig [:a :ionian])))
+         piano (get-instrument s "piano")]
+     (is (= {:f [:sharp], :c [:sharp] :g [:sharp]}
+            (:key-signature piano))))
+    (let [s     (score
+                 (part "piano"
+                   (key-sig [:b :aeolian])))
+         piano (get-instrument s "piano")]
+     (is (= {:f [:sharp], :c [:sharp]}
+            (:key-signature piano)))))
+
   (testing "the pitch of a note is affected by the key signature"
     (is (= (calculate-pitch :b [] 4 {:b [:flat]})
            (calculate-pitch :b [:flat] 4 {})))
@@ -63,4 +106,28 @@
                         (key-signature "f+")))
           piano     (get-instrument s "piano")
           f-sharp-4 (calculate-pitch :f [] 4 (:key-signature piano))]
-      (is (= f-sharp-4 (calculate-pitch :f [:sharp] 4 {}))))))
+      (is (= f-sharp-4 (calculate-pitch :f [:sharp] 4 {})))))
+
+  (testing "ionian should be the same as major"
+    (let [s     (score
+                 (part "piano"
+                   (key-sig [:c :ionian])))
+          t     (score
+                  (part "piano"
+                    (key-sig [:c :major])))
+         piano  (get-instrument s "piano")
+         piano2 (get-instrument t "piano")]
+     (is (= (:key-signature piano2)
+            (:key-signature piano)))))
+
+  (testing "aeolian should be the same as minor"
+    (let [s     (score
+                 (part "piano"
+                   (key-sig [:c :aeolian])))
+          t     (score
+                  (part "piano"
+                    (key-sig [:c :minor])))
+         piano  (get-instrument s "piano")
+         piano2 (get-instrument t "piano")]
+     (is (= (:key-signature piano2)
+            (:key-signature piano))))))
