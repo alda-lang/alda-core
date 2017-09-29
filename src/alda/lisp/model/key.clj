@@ -54,8 +54,13 @@
   [scale-type]
   (zipmap (map (comp keyword str) "fcgdaeb")
           (case scale-type
-            :major (range -1 6)
-            :minor (range -4 3))))
+            (:major :ionian) (range -1 6)
+            (:minor :aeolian) (range -4 3)
+            :lydian (range 0 7)
+            :mixolydian (range -2 5)
+            :dorian (range -3 4)
+            :phrygian (range -5 2)
+            :locrian (range -6 1))))
 
 (defn get-key-signature
   ([scale-type letter]
