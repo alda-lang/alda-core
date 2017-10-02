@@ -21,17 +21,17 @@
 
                          (contains? (set accidentals) that)
                          [letter (remove-first that accidentals)]
-                         
+
                          :else
                          [letter (conj accidentals this)])))
                    (map (comp keyword str) "abcdefg")))))
 
 (def ^:private sharpen-key
   "Raises a key signature by one semitone.
-   
+
    All notes in the key signature that were flat become natural, notes that
    were natural become sharp, notes that were sharp become double-sharp, etc.
-   
+
    e.g. Db major -> D major
    {:b [:flat] :e [:flat] :a [:flat] :d [:flat] :g [:flat]}
    becomes
@@ -40,10 +40,10 @@
 
 (def ^:private flatten-key
   "Lowers a key signature by one semitone.
-   
+
    All notes in the key signature that were sharp become natural, notes that
    were natural become flat, notes that were flat become double-flat, etc.
-   
+
    e.g. F# major to F major
    {:f [:sharp] :c [:sharp] :g [:sharp] :d [:sharp] :a [:sharp] :e [:sharp]}
    becomes
@@ -54,15 +54,20 @@
   [scale-type]
   (zipmap (map (comp keyword str) "fcgdaeb")
           (case scale-type
-            :major (range -1 6)
-            :minor (range -4 3))))
+            (:major :ionian) (range -1 6)
+            (:minor :aeolian) (range -4 3)
+            :lydian (range 0 7)
+            :mixolydian (range -2 5)
+            :dorian (range -3 4)
+            :phrygian (range -5 2)
+            :locrian (range -6 1))))
 
 (defn get-key-signature
   ([scale-type letter]
     (into {}
       (let [n          (get (partial-circle-of-fifths scale-type) letter)
-            letters    (take (Math/abs n) 
-                             (map (comp keyword str) 
+            letters    (take (Math/abs n)
+                             (map (comp keyword str)
                                   (if (pos? n) "fcgdaeb" "beadgcf")))
             accidental (if (pos? n) :sharp :flat)]
         (map (fn [ltr] [ltr [accidental]]) letters))))
