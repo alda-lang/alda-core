@@ -506,7 +506,7 @@
           (-> parser (unexpected-char-error character)))
 
         #{\s}
-        (if (re-matches #"(\d+\.)?\d+m?" buffer)
+        (if (re-matches #"\d+m?" buffer)
           (-> parser (read-to-buffer character))
           (-> parser (unexpected-char-error character)))
 

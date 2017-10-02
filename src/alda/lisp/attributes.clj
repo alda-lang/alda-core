@@ -74,7 +74,14 @@
 (defattribute tempo
   "Current tempo. Used to calculate the duration of notes."
   :initial-val 120
-  :transform pos-num)
+  :transform (fn [val]
+               (cond
+                 (map? val)
+                 (fn [old]
+                   (* (:ratio val) old))
+
+                 :else
+                 (pos-num val))))
 
 (defn tempo
   "Multi-arity function that allows for an additional parameter to represent
@@ -93,6 +100,19 @@
 
   ([note-length val]
    (global-attribute :tempo (* (parse-note-length note-length) val))))
+
+(defn tempo-transition
+  "Express tempo in terms of metric modulation, where the new note takes the
+   same amount of time (one beat) as the old note.
+   (e.g. (tempo-transition \"4.\" 2) means that the new length of a half note
+   equals the length of a dotted quarter note in the previous measure)"
+  ([old new]
+   (tempo {:ratio (/ (parse-note-length new) (parse-note-length old))})))
+
+(defn tempo-transition!
+  "Global version"
+  ([old new]
+   (tempo! {:ratio (/ (parse-note-length new) (parse-note-length old))})))
 
 (defattribute duration
   "Default note duration in beats or milliseconds. (default: beats)"

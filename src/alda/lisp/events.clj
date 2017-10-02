@@ -61,10 +61,9 @@
   "Public fn for setting attributes in a score.
    e.g. (set-attribute :tempo 100)"
   [attr val]
-  (let [{:keys [kw-name transform-fn]} (get-attr attr)]
   {:event-type :attribute-change
-   :attr       kw-name
-   :val        val}))
+   :attr       (:kw-name (get-attr attr))
+   :val        val})
 
 (defn set-attributes
   "Convenience fn for setting multiple attributes at once.
