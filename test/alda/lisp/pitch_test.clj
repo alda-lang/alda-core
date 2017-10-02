@@ -118,7 +118,8 @@
          piano  (get-instrument s "piano")
          piano2 (get-instrument t "piano")]
      (is (= (:key-signature piano2)
-            (:key-signature piano)))))
+            (:key-signature piano)
+            {}))))
 
   (testing "aeolian should be the same as minor"
     (let [s     (score
@@ -130,4 +131,5 @@
          piano  (get-instrument s "piano")
          piano2 (get-instrument t "piano")]
      (is (= (:key-signature piano2)
-            (:key-signature piano))))))
+            (:key-signature piano)
+            {:b [:flat] :e [:flat] :a [:flat]})))))
