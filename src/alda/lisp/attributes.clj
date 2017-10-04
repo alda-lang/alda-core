@@ -229,3 +229,9 @@
    :aliases [:key-sig]
    :initial-val {}
    :transform parse-key-signature)
+
+(defattribute reference-pitch
+  "The A4 pitch that instruments are tuned around."
+  :aliases [:tuning-constant]
+  :initial-val 440.0
+  :transform pos-num)
