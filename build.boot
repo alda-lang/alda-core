@@ -5,8 +5,9 @@
                     ; dev
                     [adzerk/bootlaces            "0.1.13"       :scope "test"]
                     [adzerk/boot-test            "1.2.0"        :scope "test"]
-                    [alda/sound-engine-clj       "0.3.1"        :scope "test"]
                     [org.clojure/tools.namespace "0.3.0-alpha3" :scope "test"]
+                    [alda/server-clj             "LATEST"       :scope "test"]
+                    [alda/sound-engine-clj       "LATEST"       :scope "test"]
                     ; used in examples_test.clj
                     [io.aviso/pretty             "0.1.34"       :scope "test"]
 
@@ -41,6 +42,27 @@
   target  {:dir #{"target"}}
 
   test    {:include #"-test$"})
+
+;; This task is a work in progress.
+;;
+;; Each time the -main function is called, it starts a server and workers, and
+;; they just run forever until you Ctrl-C, killing the entire `boot dev`
+;; process.
+;;
+;; I'd like to make it so that each time there is a change to the fileset, the
+;; server and workers stop gracefully, the namespace is reloaded (:reload below
+;; doesn't seem to do the trick... I'm probably missing something), and the
+;; server and workers are started again with the latest code.
+(deftask dev
+  "Runs an Alda server using the latest alda/server-clj and the local copy of
+   the code in this repo for alda/core."
+  [p port    PORT    int "The port on which to run the server. (default: 27714)"
+   w workers WORKERS int "The number of workers to start. (default: 2)"]
+  (comp
+    (watch)
+    (with-pass-thru _
+      (require 'alda.dev :reload)
+      ((resolve 'alda.dev/-main) (or port 27714) (or workers 2)))))
 
 (deftask package
   "Builds jar file."

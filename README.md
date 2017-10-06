@@ -14,7 +14,34 @@ For more details about how each component works, see the alda-core [development 
 
 ### Prerequisites
 
-Development on the Alda core library requires that you have the [Boot](http://boot-clj.com) build tool installed. This allows you to run the tests.
+Development on the Alda core library requires that you have the [Boot](http://boot-clj.com) build tool installed. This allows you to run the tests and use other development tasks.
+
+### `boot dev` task
+
+For a convenient development experience, you can follow this workflow:
+
+1. Make some changes to the code in this repo.
+
+2. Run `boot dev`. This runs an Alda server in the foreground using the latest
+   release version of
+   [alda/server-clj](https://github.com/alda-lang/alda-server-clj) and your
+   local copy of the code (with your changes) as the alda/core library.
+
+   By default, the server will run on port 27714, but if you'd like, you can
+   specify another port via the `-p` / `--port` option.
+
+3. Now you can test your changes via the `alda` CLI, e.g.:
+
+  ```shell
+  $ alda -p 27714 play -c "piano: c"
+  ```
+
+  You might find it most convenient to start an Alda REPL connected to your
+  development Alda server:
+
+  ```shell
+  $ alda -p 27714 repl
+  ```
 
 ### `boot test` task
 
