@@ -146,7 +146,10 @@
 (deftest tempo-tests
   (testing "tempo"
     ;; test different representations of tempo
-    (is (== (:val (tempo 60)) (:val (tempo 2 30)) (:val (tempo "4." 40))))
+    (is (== (:val (tempo 60))
+            (:val (tempo 2 30))
+            (:val (tempo "4." 40))
+            (:val (tempo "8.~16~4" 30))))
 
     (let [s     (score (part "piano"))
           piano (get-instrument s "piano")]
