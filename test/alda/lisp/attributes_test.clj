@@ -143,3 +143,35 @@
             piano (get-instrument s "piano")]
         (is (== (:beats (:duration piano)) 8))))))
 
+(deftest tempo-tests
+  (testing "tempo"
+    ;; test different representations of tempo
+    (is (== (:val (tempo 60)) (:val (tempo 2 30)) (:val (tempo "4." 40))))
+
+    (let [s     (score (part "piano"))
+          piano (get-instrument s "piano")]
+      ;; default tempo is 120
+      (is (== (:tempo piano) 120))
+
+      (let [s     (continue s
+                    (tempo 60))
+            piano (get-instrument s "piano")]
+        (is (== (:tempo piano) 60)))))
+
+  (testing "tempo-transition")
+    (let [s     (score (part "piano"))
+          piano (get-instrument s "piano")]
+
+      ;; ratio of (half : dotted quarter) = 4/3
+      ;; (* 120 = 160)
+      (let [s     (continue s
+                    (tempo-transition "4." 2))
+            piano (get-instrument s "piano")]
+        (is (== (:tempo piano) 160)))
+
+      (let [s     (continue s
+                    (tempo 60)
+                    (tempo-transition 4 8))
+            piano (get-instrument s "piano")]
+        (is (== (:tempo piano) 30)))))
+

@@ -57,10 +57,66 @@
               (pos? x))]}
   (constantly x))
 
+;; Converts string/number representation of note length into number of beats
+(defn- parse-note-length
+  [length]
+  {:pre [(or (string? length) (number? length))]}
+  (cond
+    (string? length)
+    (let [[_ number _ dots]  (re-matches #"(\d+(\.\d+)?)(\.*)" length)]
+      (if number
+        (:value (note-length (Float/parseFloat number) {:dots (count dots)}))
+        (throw (Exception. (format "Invalid note length: %s" length)))))
+
+    :else
+    (:value (note-length length))))
+
 (defattribute tempo
   "Current tempo. Used to calculate the duration of notes."
   :initial-val 120
-  :transform pos-num)
+  :transform (fn [val]
+               (cond
+                 (map? val)
+                 (fn [old]
+                   (* (:ratio val) old))
+
+                 :else
+                 (pos-num val))))
+
+(defn tempo
+  "Multi-arity function that allows for an additional parameter to represent
+   the tempo in terms of non-quarter notes (e.g.(tempo 2 60) <--> (tempo 120)).
+   Overwrites the single-argument function produced by defattribute"
+  ([val]
+    (tempo 4 val))
+
+  ([note-length val]
+      (set-attribute :tempo (if (map? val)
+                              val
+                              (* (parse-note-length note-length) val)))))
+
+(defn tempo!
+  "Global version of overwritten tempo function"
+  ([val]
+    (tempo! 4 val))
+
+  ([note-length val]
+     (global-attribute :tempo (if (map? val)
+                                val
+                                (* (parse-note-length note-length) val)))))
+
+(defn tempo-transition
+  "Express tempo in terms of metric modulation, where the new note takes the
+   same amount of time (one beat) as the old note.
+   (e.g. (tempo-transition \"4.\" 2) means that the new length of a half note
+   equals the length of a dotted quarter note in the previous measure)"
+  ([old new]
+   (tempo {:ratio (/ (parse-note-length new) (parse-note-length old))})))
+
+(defn tempo-transition!
+  "Global version"
+  ([old new]
+   (tempo! {:ratio (/ (parse-note-length new) (parse-note-length old))})))
 
 (defattribute duration
   "Default note duration in beats or milliseconds. (default: beats)"
@@ -81,25 +137,11 @@
                    :else
                    {:beats val}))))
 
-;; Converts string/number representation of note length into number of beats
-(defn- parse-note-length
-  [length]
-  {:pre [(or (string? length) (number? length))]}
-  (cond
-    (string? length)
-    (let [[_ number _ dots]  (re-matches #"(\d+(\.\d+)?)(\.*)" length)]
-      (if number
-        (note-length (Float/parseFloat number) {:dots (count dots)})
-        (throw (Exception. (format "Invalid note length: %s" length)))))
-
-    :else
-    (note-length length)))
-
 (defn set-note-length
   "Sets note duration in terms of alda note-lengths
    (e.g. quarter note = 4, dotted note = \"4.\")"
   [length]
-  (set-duration (:value (parse-note-length length))))
+  (set-duration (parse-note-length length)))
 
 (defattribute octave
   "Current octave. Used to calculate the pitch of notes."
