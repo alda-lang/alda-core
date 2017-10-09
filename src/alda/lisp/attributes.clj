@@ -88,18 +88,22 @@
    the tempo in terms of non-quarter notes (e.g.(tempo 2 60) <--> (tempo 120)).
    Overwrites the single-argument function produced by defattribute"
   ([val]
-  (set-attribute :tempo val))
+    (tempo 4 val))
 
   ([note-length val]
-  (set-attribute :tempo (* (parse-note-length note-length) val))))
+      (set-attribute :tempo (if (map? val)
+                              val
+                              (* (parse-note-length note-length) val)))))
 
 (defn tempo!
   "Global version of overwritten tempo function"
   ([val]
-   (global-attribute :tempo val))
+    (tempo! 4 val))
 
   ([note-length val]
-   (global-attribute :tempo (* (parse-note-length note-length) val))))
+     (global-attribute :tempo (if (map? val)
+                                val
+                                (* (parse-note-length note-length) val)))))
 
 (defn tempo-transition
   "Express tempo in terms of metric modulation, where the new note takes the

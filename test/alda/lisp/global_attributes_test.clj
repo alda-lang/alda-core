@@ -32,9 +32,9 @@
                         (pause))
               tempo-3 (:tempo (get-instrument s "viola"))]
           (testing "the tempo should change once it encounters the global attribute"
-            (is (= tempo-1 120)) ; not yet...
-            (is (= tempo-2 120)) ; not yet...
-            (is (= tempo-3 60))) ; now!
+            (is (== tempo-1 120)) ; not yet...
+            (is (== tempo-2 120)) ; not yet...
+            (is (== tempo-3 60))) ; now!
           (testing "it should use absolute offset, not relative to marker"
             (let [s       (continue s
                             (at-marker "test-marker-3"))
@@ -52,8 +52,8 @@
                   tempo-3 (:tempo (get-instrument s "viola"))]
               (is (= marker "test-marker-3"))
               (is (offset= s offset (->RelativeOffset "test-marker-3" 0)))
-              (is (= tempo-1 120))
-              (is (= tempo-2 120))
+              (is (== tempo-1 120))
+              (is (== tempo-2 120))
               ; tempo should still be 120, despite having passed 2000 ms
-              (is (= tempo-3 120)))))))))
+              (is (== tempo-3 120)))))))))
 
