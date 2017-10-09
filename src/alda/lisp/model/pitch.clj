@@ -11,8 +11,8 @@
 
 (defn midi->hz
   "Converts a MIDI note number to the note's frequency in Hz."
-  [note]
-  (* 440.0 (Math/pow 2.0 (/ (- note 69.0) 12.0))))
+  [ref-pitch note]
+  (* ref-pitch (Math/pow 2.0 (/ (- note 69.0) 12.0))))
 
 (defn- apply-key
   "Modifies the accidentals on notes to fit the key signature.

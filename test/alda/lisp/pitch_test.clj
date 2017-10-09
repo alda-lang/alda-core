@@ -27,6 +27,28 @@
     (is (== (calculate-pitch :c [:sharp :flat :flat :sharp] 4 {})
             (calculate-pitch :c [] 4 {})))))
 
+(deftest ref-pitch-tests
+  (testing "reference pitch/tuning constant attribute"
+    ; default A4 pitch is 440 Hz
+    (let [s       (score
+                    (part "piano"))
+          piano   (get-instrument s "piano")
+          c4-def  (calculate-pitch :c [] 4 {}
+                    {:ref-pitch (:reference-pitch piano)})]
+
+      (is (== 440 (calculate-pitch :a [] 4 {}
+                    {:ref-pitch (:reference-pitch piano)})))
+
+      (let [s     (continue s
+                    (tuning-constant 430))
+            piano (get-instrument s "piano")]
+        (is (== 430 (calculate-pitch :a [] 4 {}
+                    {:ref-pitch (:reference-pitch piano)}))
+
+        (is (< (calculate-pitch :c [] 4 {}
+                    {:ref-pitch (:reference-pitch piano)})
+               c4-def)))))))
+
 (deftest key-tests
   (testing "you can set and get a key signature"
     (let [s     (score
