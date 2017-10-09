@@ -50,7 +50,6 @@
 
 Thanks, [pzxwang], for the PR to add these new features!
 
-
 ## 0.3.3 (2017-10-02)
 
 * Added the following modes:
