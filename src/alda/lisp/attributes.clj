@@ -105,15 +105,15 @@
                                 val
                                 (* (parse-note-length note-length) val)))))
 
-(defn tempo-transition
+(defn metric-modulation
   "Express tempo in terms of metric modulation, where the new note takes the
    same amount of time (one beat) as the old note.
-   (e.g. (tempo-transition \"4.\" 2) means that the new length of a half note
+   (e.g. (metric-modulation \"4.\" 2) means that the new length of a half note
    equals the length of a dotted quarter note in the previous measure)"
   ([old new]
    (tempo {:ratio (/ (parse-note-length new) (parse-note-length old))})))
 
-(defn tempo-transition!
+(defn metric-modulation!
   "Global version"
   ([old new]
    (tempo! {:ratio (/ (parse-note-length new) (parse-note-length old))})))
