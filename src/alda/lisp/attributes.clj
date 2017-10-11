@@ -70,7 +70,7 @@
         (:value (note-length (Float/parseFloat number) {:dots (count dots)}))
 
         tie-seq
-        (reduce (fn [acc x] (+ acc (parse-note-length x))) 0 tie-seq)
+        (reduce + 0 (map parse-note-length tie-seq))
 
         :else
         (throw (Exception. (format "Invalid note length: %s" length)))))
