@@ -61,10 +61,9 @@
 (defn- parse-note-length
   [length]
   {:pre [(or (string? length) (number? length))]}
-  (cond
-    (string? length)
-    (let [[_ number _ dots]  (re-matches #"(\d+(\.\d+)?)(\.*)" length)
-          note-lengths            (re-seq #"[^~]+" length)]
+  (if (string? length)
+    (let [[_ number _ dots] (re-matches #"(\d+(\.\d+)?)(\.*)" length)
+          note-lengths      (re-seq #"[^~]+" length)]
       (cond
         number
         (:value (note-length (Float/parseFloat number) {:dots (count dots)}))
@@ -74,8 +73,6 @@
 
         :else
         (throw (Exception. (format "Invalid note length: %s" length)))))
-
-    :else
     (:value (note-length length))))
 
 (defattribute tempo
