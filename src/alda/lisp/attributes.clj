@@ -63,9 +63,16 @@
   {:pre [(or (string? length) (number? length))]}
   (cond
     (string? length)
-    (let [[_ number _ dots]  (re-matches #"(\d+(\.\d+)?)(\.*)" length)]
-      (if number
+    (let [[_ number _ dots]  (re-matches #"(\d+(\.\d+)?)(\.*)" length)
+          note-lengths            (re-seq #"[^~]+" length)]
+      (cond
+        number
         (:value (note-length (Float/parseFloat number) {:dots (count dots)}))
+
+        tie-seq
+        (reduce + 0 (map parse-note-length note-lengths))
+
+        :else
         (throw (Exception. (format "Invalid note length: %s" length)))))
 
     :else
