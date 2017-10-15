@@ -234,6 +234,14 @@
    :initial-val {}
    :transform parse-key-signature)
 
+(defattribute transposition
+  "Increases/decreases notes by a certain number of pitches"
+  :aliases [:transpose]
+  :initial-val 0
+  :transform (fn [x]
+               {:pre [integer? x]}
+               (constantly x)))
+
 (defattribute reference-pitch
   "The A4 pitch that instruments are tuned around."
   :aliases [:tuning-constant]

@@ -23,9 +23,11 @@
   (calculate-duration beats tempo (or time-scaling 1) ms))
 
 (defn calculate-pitch
-  [letter accidentals octave key-sig & [{:keys [ref-pitch] :or {ref-pitch 440}}]]
+  [letter accidentals octave key-sig & [{:keys [ref-pitch transpose]
+                                         :or {ref-pitch 440 transpose 0}}]]
   (let [midi-note (determine-midi-note {:letter letter
                                         :accidentals accidentals}
                                        octave
-                                       key-sig)]
+                                       key-sig
+                                       transpose)]
     (midi->hz ref-pitch midi-note)))
