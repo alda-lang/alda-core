@@ -235,11 +235,11 @@
    :transform parse-key-signature)
 
 (defattribute transposition
-  "Increases/decreases notes by a certain number of pitches"
+  "Increments or decrements each note by the desired number of half-steps."
   :aliases [:transpose]
   :initial-val 0
   :transform (fn [x]
-               {:pre [integer? x]}
+               {:pre [(integer? x)]}
                (constantly x)))
 
 (defattribute reference-pitch

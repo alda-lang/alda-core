@@ -28,9 +28,6 @@
   "Determines the MIDI note number of a note, within the context of an
    instrument's octave and key signature."
   [{:keys [letter accidentals] :as note} octave key-sig transpose]
-
-  ; check if note value in proper range after transpose
-  {:post [<= 0 % 127]}
   (+ transpose
      (reduce (fn [number accidental]
             (case accidental
