@@ -24,7 +24,10 @@
    entropy
    gau
    hello_world
+   jimenez-divertimento
    key_signature
+   modes1
+   modes2
    multi-poly
    nesting
    overriding-a-global-attribute
