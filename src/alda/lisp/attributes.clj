@@ -237,3 +237,17 @@
    :aliases [:key-sig]
    :initial-val {}
    :transform parse-key-signature)
+
+(defattribute transposition
+  "Increments or decrements each note by the desired number of half-steps."
+  :aliases [:transpose]
+  :initial-val 0
+  :transform (fn [x]
+               {:pre [(integer? x)]}
+               (constantly x)))
+
+(defattribute reference-pitch
+  "The A4 pitch that instruments are tuned around."
+  :aliases [:tuning-constant]
+  :initial-val 440.0
+  :transform pos-num)
