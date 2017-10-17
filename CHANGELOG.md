@@ -18,8 +18,9 @@
 
   This attribute can be used to make writing parts for [transposing
   instruments](https://en.wikipedia.org/wiki/Transposing_instrument) more
-  convenient. To see `transpose` in use, see [this example score](), a
-  transcription of a saxophone quartet by Juan Santiago Jiménez.
+  convenient. To see `transpose` in use, see [this example
+  score](https://github.com/alda-lang/alda-core/blob/master/examples/jimenez-divertimento.alda),
+  a transcription of a saxophone quartet by Juan Santiago Jiménez.
 
   Saxophones are transposing instruments; soprano and tenor saxophones are
   considered "Bb" instruments, and alto and baritone saxophones are considered
