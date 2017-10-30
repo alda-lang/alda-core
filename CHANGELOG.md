@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 0.3.7 (2017-10-30)
+
+* Fixed a bug in the way the program path is determined when a server starts
+  workers. (That code lives in alda.util, in this repo.) The bug was showing
+  itself when the path to the `alda` (or `alda.exe`) executable contained spaces
+  or other special characters.
+
+  Thanks to [Hemaolle] for the detective work and PR to fix this issue!
+
 ## 0.3.6 (2017-10-17)
 
 * Added a `reference-pitch` (alias: `tuning-constant`) attribute, which will
@@ -247,3 +256,4 @@ Thanks, [pzxwang] for contributing the changes in this release in PR [#50](https
 [damiendevienne]: https://github.com/damiendevienne
 [pzxwang]: https://github.com/pzxwang
 [iggar]: https://github.com/iggar
+[Hemaolle]: https://github.com/Hemaolle
