@@ -120,7 +120,7 @@
    (source: http://stackoverflow.com/a/13276993/2338327)"
   [& [ns]]
   (-> (or ns (class *ns*))
-      .getProtectionDomain .getCodeSource .getLocation .getPath))
+      .getProtectionDomain .getCodeSource .getLocation .toURI .getPath))
 
 (defn alda-home-path
   "Returns the path to a folder/file inside the Alda home directory, or the
