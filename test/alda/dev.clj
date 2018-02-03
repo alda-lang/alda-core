@@ -27,12 +27,12 @@
   [frontend-port]
   (binding [s/*no-system-exit*     true
             s/*disable-supervisor* true]
-    (s/start-server! 0 frontend-port #_:verbose)))
+    (s/start-server! 0 frontend-port :verbose)))
 
 (defn start-worker!
   [backend-port]
   (binding [w/*no-system-exit* true]
-    (w/start-worker! backend-port #_:verbose)))
+    (w/start-worker! backend-port :verbose)))
 
 (defn -main
   [frontend-port workers]
