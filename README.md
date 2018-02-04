@@ -72,6 +72,6 @@ When running tests via `boot test` and troubleshooting a failing test, it may be
 
 ## License
 
-Copyright © 2017 Dave Yarwood et al
+Copyright © 2012-2018 Dave Yarwood et al
 
 Distributed under the Eclipse Public License version 1.0.
