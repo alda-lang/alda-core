@@ -1,7 +1,8 @@
 (ns alda.test-helpers
   (:require [clojure.string           :as    str]
             [alda.lisp.model.duration :refer (calculate-duration)]
-            [alda.lisp.model.pitch    :refer (midi->hz determine-midi-note)]))
+            [alda.lisp.model.pitch    :refer (midi->hz determine-midi-note)]
+            [alda.parser              :refer (parse-input)]))
 
 (defn get-instrument
   "Returns the first instrument in :instruments whose id starts with inst-name."
@@ -31,3 +32,11 @@
                                        key-sig
                                        transpose)]
     (midi->hz ref-pitch midi-note)))
+
+(defn parse-events
+  [input]
+  (parse-input input :output :events))
+
+(defn parse-events-or-error
+  [input]
+  (parse-input input :output :events-or-error))

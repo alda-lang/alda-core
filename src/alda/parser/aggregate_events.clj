@@ -49,6 +49,11 @@
      (:chord? x)
      (throw (Exception. "No previous note with which to create a chord."))
 
+     (:events x)
+     (let [aggregated-x (->> (aggregate-inner-events (:events x))
+                             (assoc x :events))]
+       (recur more (conj events aggregated-x)))
+
      (not (#{:note :rest} (:event-type x)))
      (recur more (conj events x))
 

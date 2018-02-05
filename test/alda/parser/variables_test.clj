@@ -1,43 +1,33 @@
 (ns alda.parser.variables-test
-  (:require [clojure.test :refer :all]
-            [alda.parser  :refer (parse-input)]))
+  (:require [clojure.test      :refer :all]
+            [alda.test-helpers :refer (parse-events parse-events-or-error)]))
 
 (deftest variable-name-tests
   (testing "variable names"
     (testing "must start with two letters"
-      (is (= [(alda.lisp/get-variable :aa)]
-             (parse-input "aa" :output :events)))
-      (is (= [(alda.lisp/get-variable :aaa)]
-             (parse-input "aaa" :output :events)))
-      (is (= [(alda.lisp/get-variable :HI)]
-             (parse-input "HI" :output :events)))
-      (is (thrown? Exception (parse-input "x"
-                                          :output :events-or-error)))
-      (is (thrown? Exception (parse-input "y2"
-                                          :output :events-or-error)))
-      (is (thrown? Exception (parse-input "1234kittens"
-                                          :output :events-or-error)))
-      (is (thrown? Exception (parse-input "i_like_underscores"
-                                          :output :events-or-error))))
+      (is (= [(alda.lisp/get-variable :aa)] (parse-events "aa")))
+      (is (= [(alda.lisp/get-variable :aaa)] (parse-events "aaa")))
+      (is (= [(alda.lisp/get-variable :HI)] (parse-events "HI")))
+      (is (thrown? Exception (parse-events-or-error "x")))
+      (is (thrown? Exception (parse-events-or-error "y2")))
+      (is (thrown? Exception (parse-events-or-error "1234kittens")))
+      (is (thrown? Exception (parse-events-or-error "i_like_underscores"))))
     (testing "can't contain pluses or minuses"
-      (is (thrown? Exception (parse-input "jar-jar-binks"
-                                          :output :events-or-error)))
-      (is (thrown? Exception (parse-input "han+leia"
-                                          :output :events-or-error)))
-      (is (thrown? Exception (parse-input "ionlyprograminc++"
-                                          :output :events-or-error))))
+      (is (thrown? Exception (parse-events-or-error "jar-jar-binks")))
+      (is (thrown? Exception (parse-events-or-error "han+leia")))
+      (is (thrown? Exception (parse-events-or-error "ionlyprograminc++"))))
     (testing "can contain digits"
       (is (= [(alda.lisp/get-variable :celloPart2)]
-             (parse-input "celloPart2" :output :events)))
+             (parse-events "celloPart2")))
       (is (= [(alda.lisp/get-variable :xy42)]
-             (parse-input "xy42" :output :events)))
+             (parse-events "xy42")))
       (is (= [(alda.lisp/get-variable :my20cats)]
-             (parse-input "my20cats" :output :events))))
+             (parse-events "my20cats"))))
     (testing "can contain underscores"
       (is (= [(alda.lisp/get-variable :apple_cider)]
-             (parse-input "apple_cider" :output :events)))
+             (parse-events "apple_cider")))
       (is (= [(alda.lisp/get-variable :underscores__are___great____)]
-             (parse-input "underscores__are___great____" :output :events))))))
+             (parse-events "underscores__are___great____"))))))
 
 (deftest variable-get-tests
   (testing "variable getting"
@@ -45,10 +35,10 @@
             (alda.lisp/note (alda.lisp/pitch :c))
             (alda.lisp/get-variable :flan)
             (alda.lisp/note (alda.lisp/pitch :f))]
-           (parse-input "flute: c flan f" :output :events)))
+           (parse-events "flute: c flan f")))
     (is (= [(alda.lisp/part {:names ["clarinet"]})
             (alda.lisp/get-variable :pudding123)]
-           (parse-input "clarinet: pudding123" :output :events)))))
+           (parse-events "clarinet: pudding123")))))
 
 (deftest variable-set-tests
   (testing "variable setting"
@@ -60,7 +50,7 @@
                 (alda.lisp/chord
                   (alda.lisp/note (alda.lisp/pitch :e))
                   (alda.lisp/note (alda.lisp/pitch :g))))]
-             (parse-input "harpsichord:\n\ncustard_ = c d e/g" :output :events)))
+             (parse-events "harpsichord:\n\ncustard_ = c d e/g")))
       (is (= [(alda.lisp/part {:names ["glockenspiel"]})
               (alda.lisp/set-variable :sorbet
                 (alda.lisp/note (alda.lisp/pitch :c))
@@ -69,7 +59,7 @@
                   (alda.lisp/note (alda.lisp/pitch :e))
                   (alda.lisp/note (alda.lisp/pitch :g))))
               (alda.lisp/note (alda.lisp/pitch :c))]
-             (parse-input "glockenspiel:\n\nsorbet=c d e/g\nc" :output :events))))
+             (parse-events "glockenspiel:\n\nsorbet=c d e/g\nc"))))
     (testing "at the top of a score"
       (is (= [(alda.lisp/set-variable :GELATO
                 (alda.lisp/note (alda.lisp/pitch :d))
@@ -78,4 +68,11 @@
               (alda.lisp/chord
                 (alda.lisp/note (alda.lisp/pitch :c))
                 (alda.lisp/note (alda.lisp/pitch :f)))]
-             (parse-input "GELATO=d e\n\nclavinet: c/f" :output :events))))))
+             (parse-events "GELATO=d e\n\nclavinet: c/f")))
+      (is (= [(alda.lisp/set-variable :cheesecake
+                (alda.lisp/cram
+                  (alda.lisp/chord
+                    (alda.lisp/note (alda.lisp/pitch :c))
+                    (alda.lisp/note (alda.lisp/pitch :e)))
+                  (alda.lisp/duration (alda.lisp/note-length 2))))]
+             (parse-events "cheesecake = { c/e }2"))))))

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 0.3.8 (2018-02-05)
+
+* Fixed a bug where the parser did not correctly parse nested events in some
+  situations, for example a set-variable expression containing a CRAM expression
+  containing a chord. ([#55](https://github.com/alda-lang/alda-core/issues/55))
+
+  Thanks to [elyisgreat] for reporting this issue!
+
 ## 0.3.7 (2017-10-30)
 
 * Fixed a bug in the way the program path is determined when a server starts
@@ -252,6 +260,7 @@ Thanks, [pzxwang] for contributing the changes in this release in PR [#50](https
 
 * Extracted alda-core from the [main Alda repo](https://github.com/alda-lang/alda) as of version 1.0.0-rc50.
 
+[elyisgreat]: https://github.com/elyisgreat
 [bbqbaron]: https://github.com/bbqbaron
 [damiendevienne]: https://github.com/damiendevienne
 [pzxwang]: https://github.com/pzxwang
