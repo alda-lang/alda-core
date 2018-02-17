@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 0.3.9 (2018-02-16)
+
+* Fixed a minor bug where parsing an invalid score like `piano:
+  undefinedVariable` would return `nil` instead of throwing the error.
+
+  The bug was that when a score is syntactically valid but throws an exception
+  while trying to build the score (in the case of this example, because the
+  referenced variable is undefined), the exception is thrown inside a core.async
+  channel and does not affect the main thread -- essentially it gets swallowed,
+  which is a known caveat of exceptions in core.async.
+
+  Now, any errors thrown while building the score are passed through the parsing
+  pipeline so that they can be thrown when we're ready to return a result (or
+  throw an exception).
+
 ## 0.3.8 (2018-02-05)
 
 * Fixed a bug where the parser did not correctly parse nested events in some
