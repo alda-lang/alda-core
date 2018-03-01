@@ -1,5 +1,6 @@
 (ns alda.parser.variables-test
   (:require [clojure.test      :refer :all]
+            [alda.lisp]
             [alda.test-helpers :refer (parse-events parse-events-or-error)]))
 
 (deftest variable-name-tests
@@ -75,4 +76,18 @@
                     (alda.lisp/note (alda.lisp/pitch :c))
                     (alda.lisp/note (alda.lisp/pitch :e)))
                   (alda.lisp/duration (alda.lisp/note-length 2))))]
-             (parse-events "cheesecake = { c/e }2"))))))
+             (parse-events "cheesecake = { c/e }2")))
+      ;; Regression test for https://github.com/alda-lang/alda-core/issues/64
+      (testing "and including voices"
+        (is (= [(alda.lisp/set-variable :satb
+                  (alda.lisp/voice 1)
+                  (alda.lisp/get-variable :soprano)
+                  (alda.lisp/voice 2)
+                  (alda.lisp/get-variable :alto)
+                  (alda.lisp/voice 3)
+                  (alda.lisp/get-variable :tenor)
+                  (alda.lisp/voice 4)
+                  (alda.lisp/get-variable :bass))]
+               ;; NB: the newline was essential to reproducing the issue!
+               (parse-events
+                 "satb = V1: soprano V2: alto V3: tenor V4: bass\n")))))))
