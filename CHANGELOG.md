@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 0.3.10 (2018-02-28)
+
+* Fixed a minor bug in the parser: there was an edge case where a "get variable"
+  event wasn't being disambiguated from its earlier, less-specific "name" form
+  if the "get variable" event happened to be the last thing in the definition of
+  another variable. ([#64](https://github.com/alda-lang/alda-core/issues/64))
+
+  Thanks to [elyisgreat] for spotting the bug!
+
 ## 0.3.9 (2018-02-16)
 
 * Fixed a minor bug where parsing an invalid score like `piano:
