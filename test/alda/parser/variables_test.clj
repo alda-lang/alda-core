@@ -77,8 +77,9 @@
                     (alda.lisp/note (alda.lisp/pitch :e)))
                   (alda.lisp/duration (alda.lisp/note-length 2))))]
              (parse-events "cheesecake = { c/e }2")))
-      ;; Regression test for https://github.com/alda-lang/alda-core/issues/64
-      (testing "and including voices"
+      ;; Regression tests for https://github.com/alda-lang/alda-core/issues/64
+      ;; NB: the trailing newline was essential to reproducing the issue!
+      (testing "and ending with a variable reference"
         (is (= [(alda.lisp/set-variable :satb
                   (alda.lisp/voice 1)
                   (alda.lisp/get-variable :soprano)
@@ -88,6 +89,8 @@
                   (alda.lisp/get-variable :tenor)
                   (alda.lisp/voice 4)
                   (alda.lisp/get-variable :bass))]
-               ;; NB: the newline was essential to reproducing the issue!
                (parse-events
-                 "satb = V1: soprano V2: alto V3: tenor V4: bass\n")))))))
+                 "satb = V1: soprano V2: alto V3: tenor V4: bass\n")))
+        (is (= [(alda.lisp/set-variable :foo
+                  (alda.lisp/get-variable :bar))]
+               (parse-events "foo = bar\n")))))))
