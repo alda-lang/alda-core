@@ -69,7 +69,7 @@
         number
         (:value (note-length (Float/parseFloat number) {:dots (count dots)}))
 
-        tie-seq
+        note-lengths
         (reduce + 0 (map parse-note-length note-lengths))
 
         :else
