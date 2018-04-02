@@ -27,6 +27,44 @@
     (is (== (calculate-pitch :c [:sharp :flat :flat :sharp] 4 {})
             (calculate-pitch :c [] 4 {})))))
 
+(deftest ref-pitch-tests
+  (testing "reference pitch/tuning constant attribute"
+    (is (== 430 (calculate-pitch :a [] 4 {} {:ref-pitch 430})))
+    (is (> (calculate-pitch :c [] 4 {})
+           (calculate-pitch :c [] 4 {} {:ref-pitch 430})))
+
+    ; default A4 pitch is 440 Hz
+    (let [s       (score
+                    (part "piano"))
+          piano   (get-instrument s "piano")]
+
+      (is (== 440 (:reference-pitch piano)))
+
+      (let [s     (continue s
+                    (tuning-constant 430))
+            piano (get-instrument s "piano")]
+        (is (== 430 (:reference-pitch piano)))))))
+
+(deftest transposition-tests
+  (testing "transposition attribute"
+    (is (== (calculate-pitch :a [] 4 {})
+            (calculate-pitch :g [] 4 {} {:transpose 2})
+            (calculate-pitch :c [] 5 {} {:transpose -3})))
+    (is (== (calculate-pitch :c [] 4 {})
+            (calculate-pitch :b [] 3 {} {:transpose 1})
+            (calculate-pitch :c [:sharp] 4 {} {:transpose -1})
+            (calculate-pitch :c [] 4 {:c [:sharp]} {:transpose -1})))
+
+    (let [s       (score
+                    (part "piano"))
+          piano   (get-instrument s "piano")]
+      (is (== 0 (:transposition piano)))
+
+      (let [s     (continue s
+                    (transpose 2))
+            piano (get-instrument s "piano")]
+        (is (== 2 (:transposition piano)))))))
+
 (deftest key-tests
   (testing "you can set and get a key signature"
     (let [s     (score

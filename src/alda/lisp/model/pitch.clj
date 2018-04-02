@@ -11,8 +11,8 @@
 
 (defn midi->hz
   "Converts a MIDI note number to the note's frequency in Hz."
-  [note]
-  (* 440.0 (Math/pow 2.0 (/ (- note 69.0) 12.0))))
+  [ref-pitch note]
+  (* ref-pitch (Math/pow 2.0 (/ (- note 69.0) 12.0))))
 
 (defn- apply-key
   "Modifies the accidentals on notes to fit the key signature.
@@ -27,14 +27,15 @@
 (defn determine-midi-note
   "Determines the MIDI note number of a note, within the context of an
    instrument's octave and key signature."
-  [{:keys [letter accidentals] :as note} octave key-sig]
-  (reduce (fn [number accidental]
+  [{:keys [letter accidentals] :as note} octave key-sig transpose]
+  (+ transpose
+     (reduce (fn [number accidental]
             (case accidental
               :flat    (dec number)
               :sharp   (inc number)
               :natural (identity number)))
           (midi-note letter octave)
-          (apply-key key-sig letter accidentals)))
+          (apply-key key-sig letter accidentals))))
 
 (defn pitch
   [letter & accidentals]

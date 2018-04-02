@@ -112,7 +112,10 @@
         (swap! error #(or % event))
 
         :else
-        (recur (score/continue score event))))))
+        (recur (try
+                 (score/continue score event)
+                 (catch Throwable e
+                   (swap! error #(or % e)))))))))
 
 (defn parse-input
   "Given a string of Alda code, process it via the following asynchronous

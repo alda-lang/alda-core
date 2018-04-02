@@ -1,5 +1,89 @@
 # CHANGELOG
 
+## 0.3.10 (2018-02-28)
+
+* Fixed a minor bug in the parser: there was an edge case where a "get variable"
+  event wasn't being disambiguated from its earlier, less-specific "name" form
+  if the "get variable" event happened to be the last thing in the definition of
+  another variable. ([#64](https://github.com/alda-lang/alda-core/issues/64))
+
+  Thanks to [elyisgreat] for spotting the bug!
+
+## 0.3.9 (2018-02-16)
+
+* Fixed a minor bug where parsing an invalid score like `piano:
+  undefinedVariable` would return `nil` instead of throwing the error.
+
+  The bug was that when a score is syntactically valid but throws an exception
+  while trying to build the score (in the case of this example, because the
+  referenced variable is undefined), the exception is thrown inside a core.async
+  channel and does not affect the main thread -- essentially it gets swallowed,
+  which is a known caveat of exceptions in core.async.
+
+  Now, any errors thrown while building the score are passed through the parsing
+  pipeline so that they can be thrown when we're ready to return a result (or
+  throw an exception).
+
+## 0.3.8 (2018-02-05)
+
+* Fixed a bug where the parser did not correctly parse nested events in some
+  situations, for example a set-variable expression containing a CRAM expression
+  containing a chord. ([#55](https://github.com/alda-lang/alda-core/issues/55))
+
+  Thanks to [elyisgreat] for reporting this issue!
+
+## 0.3.7 (2017-10-30)
+
+* Fixed a bug in the way the program path is determined when a server starts
+  workers. (That code lives in alda.util, in this repo.) The bug was showing
+  itself when the path to the `alda` (or `alda.exe`) executable contained spaces
+  or other special characters.
+
+  Thanks to [Hemaolle] for the detective work and PR to fix this issue!
+
+## 0.3.6 (2017-10-17)
+
+* Added a `reference-pitch` (alias: `tuning-constant`) attribute, which will
+  have an affect on the pitch of each note in Hz. This number is the desired
+  pitch of A4 (the note A in the 4th octave). The default value is 440 Hz.
+
+  However, please note that this value is not currently used. We are still
+  figuring out how to tune MIDI notes in Java -- it is more difficult that one
+  might expect. If you're interested in helping with this, please let us know!
+
+* Added a `transposition` (alias: `transpose`) attribute, which moves all notes
+  (either per-instrument, or globally, depending on whether you are using
+  `transpose` or `transpose!`) up or down by a desired number of semitones.
+  Positive numbers represent increasing semitones, and negative numbers
+  represent decreasing semitones.
+
+  This attribute can be used to make writing parts for [transposing
+  instruments](https://en.wikipedia.org/wiki/Transposing_instrument) more
+  convenient. To see `transpose` in use, see [this example
+  score](https://github.com/alda-lang/alda-core/blob/master/examples/jimenez-divertimento.alda),
+  a transcription of a saxophone quartet by Juan Santiago Jiménez.
+
+  Saxophones are transposing instruments; soprano and tenor saxophones are
+  considered "Bb" instruments, and alto and baritone saxophones are considered
+  "Eb" instruments.  This means that an instrument part written for a baritone
+  saxophone, for example, might appear to be written in C major, but when read
+  and performed by a baritone saxophonist, it will sound like Eb major, the
+  intended key.
+
+Thanks, [pzxwang], for implementing these new features!
+
+## 0.3.5 (2017-10-14)
+
+* Minor improvement to the new `tempo` function overload and `metric-modulation`
+  function: the supplied note-length can be a string representing multiple note
+  lengths tied together, e.g.:
+
+  ```
+  (tempo "4~16" 120)
+  ```
+
+  Thanks to [elyisgreat] for the issue and [pzxwang] for the pull request!
+
 ## 0.3.4 (2017-10-09)
 
 * Added an overload of `tempo` that allows you to specify the tempo in terms of
@@ -200,7 +284,9 @@ Thanks, [pzxwang] for contributing the changes in this release in PR [#50](https
 
 * Extracted alda-core from the [main Alda repo](https://github.com/alda-lang/alda) as of version 1.0.0-rc50.
 
+[elyisgreat]: https://github.com/elyisgreat
 [bbqbaron]: https://github.com/bbqbaron
 [damiendevienne]: https://github.com/damiendevienne
 [pzxwang]: https://github.com/pzxwang
 [iggar]: https://github.com/iggar
+[Hemaolle]: https://github.com/Hemaolle

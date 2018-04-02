@@ -24,7 +24,8 @@
    {:keys [event-type beats ms slur?] :as event}]
   (for [{:keys [id duration duration-inside-cram time-scaling tempo
                 current-offset last-offset current-marker quantization volume
-                track-volume panning octave key-signature min-duration]
+                track-volume panning octave key-signature reference-pitch
+                transposition min-duration]
          :as inst}
         (get-current-instruments score)]
     (let [{:keys [beats ms]} (if (or beats ms)
@@ -37,9 +38,10 @@
                                                  ms)
           quant-duration     (* full-duration quant)
           midi-note          (if (= event-type :note)
-                               (determine-midi-note event octave key-signature))
+                               (determine-midi-note event octave key-signature
+                                transposition))
           pitch              (if (= event-type :note)
-                               (midi->hz midi-note))
+                               (midi->hz reference-pitch midi-note))
           note               (if (= event-type :note)
                                (map->Note
                                  {:offset       current-offset

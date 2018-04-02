@@ -5,5 +5,5 @@ piano/harp:
   {e f g} {a b > c}
 
 harp:
- {d e f} {g a b}
+  {d e f} {g a b}
 
