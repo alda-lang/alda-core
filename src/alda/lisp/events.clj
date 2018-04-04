@@ -135,8 +135,42 @@
 
 (defn times
   "Repeats an Alda event (or sequence of events) `n` times."
-  [n event]
+  ([n event]
   (vec (repeat n event)))
+
+  ([n event reps]
+  "Extended arity for alternate endings function.
+   Takes as input an event (sequence) and a list that specifies at which
+   repetitions each event is repeated
+   e.g. (times 3 [note1 [note2 note3]] [[1 3] [2]]) results in
+        [note1 note2 note3 note1]"
+
+  ; Process:
+  ; 1) zip events and reps together, decrement reps (for indexing)
+  ; 2) if multiple events associated with one rep vector, then zip that rep
+  ;    with each event
+  ;    e.g. [[note2 note3] [2]] -> [[note2 [2]] [note3 [2]]]
+  ; 3) repeat the entire zipped sequence, index each repetition
+  ; 4) for a certain indexed repetition, remove all events where that index
+  ;    does not appear in the event's rep vector
+
+  (let [paired   (map vector event
+                             (map (fn [rep] (map dec rep)) reps))
+        expanded (mapcat
+                   (fn [[notes rep]]
+                       (map #(vector % rep) notes))
+                   paired)
+        repeated (map-indexed vector (repeat n expanded))]
+
+    (vec
+    (mapcat
+      (fn [index note-reps]
+        (map first
+             (filter
+               (fn [[note rep]]
+                   (some #(= index %) rep))
+               note-reps)))
+      repeated)))))
 
 (defn cram
   "A cram expression evaluates the events it contains, time-scaled based on the

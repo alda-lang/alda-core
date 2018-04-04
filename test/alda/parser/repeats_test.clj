@@ -64,17 +64,6 @@
                [(alda.lisp/note (alda.lisp/pitch :d))
                 (alda.lisp/note (alda.lisp/pitch :e))]]
               [[1 2 3 4] [2]])]
-           (parse-input "[c [d e]'2] *4" :output :events)))
+           (parse-input "[c [d e]'2] *4" :output :events)))))
 
-    (is (= [(alda.lisp/note (alda.lisp/pitch :c))
-            (alda.lisp/note (alda.lisp/pitch :d))
-            (alda.lisp/note (alda.lisp/pitch :d))
-            (alda.lisp/note (alda.lisp/pitch :e))
-            (alda.lisp/note (alda.lisp/pitch :d))
-            (alda.lisp/note (alda.lisp/pitch :c))]
-           [(alda.lisp/times 4
-              [(alda.lisp/note (alda.lisp/pitch :c))
-               (alda.lisp/note (alda.lisp/pitch :d))
-               (alda.lisp/note (alda.lisp/pitch :e))]
-              [[1 4] [1 2 3] [2]])]
-           (parse-input "[c'1,4 d'1-3 e'2] *4" :output :events)))))
+
