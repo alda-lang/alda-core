@@ -146,6 +146,7 @@
         [note1 note2 note3 note1]"
 
   ; Process:
+  ; 0) convert each single event into vector (so that map can iterate properly)
   ; 1) zip events and reps together, decrement reps (for indexing)
   ; 2) if multiple events associated with one rep vector, then zip that rep
   ;    with each event
@@ -154,23 +155,25 @@
   ; 4) for a certain indexed repetition, remove all events where that index
   ;    does not appear in the event's rep vector
 
-  (let [paired   (map vector event
+  (let [wrapped  (mapv
+                   (fn [evnt] (if (vector? evnt) evnt [evnt]))
+                   (if (vector? event) event [event]))
+        paired   (map vector wrapped
                              (map (fn [rep] (map dec rep)) reps))
         expanded (mapcat
-                   (fn [[notes rep]]
-                       (map #(vector % rep) notes))
+                   (fn [[evnt rep]]
+                       (map #(vector % rep) evnt))
                    paired)
         repeated (map-indexed vector (repeat n expanded))]
 
-    (vec
-    (mapcat
-      (fn [index note-reps]
-        (map first
+    (mapv
+      (fn [[index event-reps]]
+        (mapv first
              (filter
-               (fn [[note rep]]
+               (fn [[evnt rep]]
                    (some #(= index %) rep))
-               note-reps)))
-      repeated)))))
+               event-reps)))
+      repeated))))
 
 (defn cram
   "A cram expression evaluates the events it contains, time-scaled based on the
