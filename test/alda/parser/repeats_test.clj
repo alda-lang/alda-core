@@ -36,18 +36,17 @@
   (testing "alternate endings/numbered repeats"
     (is (= [[(alda.lisp/note (alda.lisp/pitch :c))]]
            (alda.lisp/times 1
-              (alda.lisp/note (alda.lisp/pitch :c))
-              [[1]])))
+              [(alda.lisp/note (alda.lisp/pitch :c)) [1]])))
+
 
     (is (= [[(alda.lisp/note (alda.lisp/pitch :c))
             (alda.lisp/note (alda.lisp/pitch :d))]
             [(alda.lisp/note (alda.lisp/pitch :c))
             (alda.lisp/note (alda.lisp/pitch :e))]]
            (alda.lisp/times 2
-              [(alda.lisp/note (alda.lisp/pitch :c))
-               (alda.lisp/note (alda.lisp/pitch :d))
-               (alda.lisp/note (alda.lisp/pitch :e))]
-              [[1 2] [1] [2]]))
+              [[(alda.lisp/note (alda.lisp/pitch :c)) [1 2]]
+               [(alda.lisp/note (alda.lisp/pitch :d)) [1]]
+               [(alda.lisp/note (alda.lisp/pitch :e)) [2]]])))
 
     (is (= [[(alda.lisp/note (alda.lisp/pitch :c))]
             [(alda.lisp/note (alda.lisp/pitch :c))
@@ -57,11 +56,8 @@
              (alda.lisp/note (alda.lisp/pitch :e))]
             [(alda.lisp/note (alda.lisp/pitch :c))]]
            (alda.lisp/times 4
-              [(alda.lisp/note (alda.lisp/pitch :c))
-               [(alda.lisp/note (alda.lisp/pitch :d))
-                (alda.lisp/note (alda.lisp/pitch :e))]]
-              [[1 2 4] [2 3]])
-           ;(parse-input "[c [d e]'2] *4" :output :events)
-           )))))
+              [[(alda.lisp/note (alda.lisp/pitch :c)) [1 2 4]]
+               [[(alda.lisp/note (alda.lisp/pitch :d))
+                (alda.lisp/note (alda.lisp/pitch :e))] [2 3]]])))))
 
 
