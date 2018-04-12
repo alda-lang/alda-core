@@ -44,7 +44,7 @@
             [(alda.lisp/note (alda.lisp/pitch :c))
             (alda.lisp/note (alda.lisp/pitch :e))]]
            (alda.lisp/times 2
-              [[(alda.lisp/note (alda.lisp/pitch :c)) [1 2]]
+              [(alda.lisp/note (alda.lisp/pitch :c))
                [(alda.lisp/note (alda.lisp/pitch :d)) [1]]
                [(alda.lisp/note (alda.lisp/pitch :e)) [2]]])))
 

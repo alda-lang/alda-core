@@ -133,41 +133,40 @@
   []
   {:event-type :end-voice-group})
 
-(defn times
-  "Repeats an Alda event (or sequence of events) `n` times.
-   Also implements alternate endings function.
-   Takes as input a list of event (sequence) and repetition position pairs
-   e.g. (times 3 [[note1 [1 3]] [[note2 note3] [2]]]) results in
-        [[note1] [note2 note3] [note1]]"
-  [n event]
-  (cond
-  ; numbered repeat
-  ; TODO: more robust condition check to differentiate between the input for
-  ;       simple vs. numbered repeat
-  (or (number? (last (flatten event)))
-      (number? (last (last (flatten event)))))
-
+(defn- times-select
   ; Process:
-  ; 1) convert each single event and pair into vector
-  ;    (so that map can iterate properly) + decrement reps (to match indexing)
-  ;    e.g. [note1 [1 3]] -> [[[note 1] [0 2]]]
-  ; 2) if multiple events associated with one rep vector, then pair that rep
+  ; 1) if the input is a single pair, wrap in brackets
+  ;    (so that map can iterate properly)
+  ;    e.g. [note1 [1 3]] -> [[note1 [0 2]]]
+  ; 2) for each unpaired event, pair it with a repetition vector
+  ;    (assume that unpaired = repeat each time)
+  ;    + decrement all reps (to match future indexing)
+  ;    e.g. [[note1 [1 3]] note2] -> [[note1 [0 2]] [note2 [0 1 2]]]
+  ; 3) if multiple events associated with one rep vector, then pair that rep
   ;    with each event
-  ;    e.g. [[note2 note3] [2]] -> [[note2 [2]] [note3 [2]]]
-  ; 3) repeat the entire zipped sequence, index each repetition
-  ; 4) for a certain indexed repetition, remove all events where that index
+  ;    e.g. [[[note2 note3] [2]]] -> [[note2 [2]] [note3 [2]]]
+  ; 4) repeat the entire zipped sequence, index each repetition
+  ; 5) for a certain indexed repetition, remove all events where that index
   ;    does not appear in the event's rep vector
-  (let [wrapped (mapv
-                  (fn [[evnt reps]]
-                    [(if (vector? evnt) evnt [evnt])
-                     (map dec reps)])
-                  (if (and (vector? (last event))
-                           (vector? (last (last event))))
-                    event [event]))
+  [n event]
+  (let [wrapped-input (if (and (contains? (first event) :event-type)
+                               (every? number? (last event)))
+                        [event]
+                        event)
+        wrapped-evnts (mapv
+                        (fn [evnt-or-pair]
+                          (let [evnt (first evnt-or-pair)
+                                reps (last evnt-or-pair)]
+                            (if (map? evnt-or-pair)
+                              [evnt-or-pair (range n)]
+                              [evnt (map dec reps)])))
+                        wrapped-input)
         expanded (mapcat
-                   (fn [[evnt rep]]
-                     (map #(vector % rep) evnt))
-                   wrapped)
+                   (fn [[evnt rep :as pair]]
+                     (if (vector? evnt)
+                       (map #(vector % rep) evnt)
+                       [pair]))
+                   wrapped-evnts)
         repeated (map-indexed vector (repeat n expanded))]
 
     (mapv
@@ -177,11 +176,27 @@
                 (fn [[evnt rep]]
                   (some #(= index %) rep))
                 event-reps)))
-      repeated))
+      repeated)))
 
-  ; simple repeat
-  :else
-  (vec (repeat n event))))
+(defn times
+  "Repeats an Alda event (or sequence of events) `n` times.
+   Also implements the alternate endings function. Takes as input a list of
+   events optionally paired with which repetitions they play in. If no
+   repetition position is specified for a certain event, then that event will
+   play during all repetitions.
+   e.g. (times 4 [[note1 [1 3]] [[note2 note3] [2]] note4]) results in
+        [[note1 note4] [note2 note3 note4] [note1 note4] [note4]]"
+  [n event]
+  (cond
+    ; numbered repeat
+    ; TODO: more robust/flexible condition check to differentiate between the
+    ;       input for simple vs. numbered repeat
+    (some number? (flatten event))
+    (times-select n event)
+
+    ; simple repeat
+    :else
+    (vec (repeat n event))))
 
 (defn cram
   "A cram expression evaluates the events it contains, time-scaled based on the
