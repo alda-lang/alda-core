@@ -4,7 +4,7 @@
 (tempo! 60)
 (quant! 100)
 
-cello:
+cello "main":
   o2 g16 > d b a b d b d < g > d b a b d b d
   o2 g > e > c < b > c < e > c < e < g > e > c < b > c < e > c < e
   o2 g > f+ > c < b > c < f+ > c < f+ < g > f+ > c < b > c < f+ > c < f+
@@ -41,25 +41,28 @@ cello:
 
   o3 f+ a d a e a f+ a
 
-  # notes weaving around open A string
-  V1: (quant 65) (volume 100)
-    o3 g8 a b d a b > c < d b > c d < b > | c < b > c < a b a b g |
-    o3 a g a f+
+  # Simulating notes weaving around the open A string by using a second cello
+  # for the A string.
+  %weaving
+  (quant 65) (volume 100)
+  o3 g8 a b d a b > c < d b > c d < b > | c < b > c < a b a b g |
+  o3 a g a f+
 
-  # open A string
-  V2: (quant 65) (volume 70)
-    o3 r16 a8 a a a | a a a a a a a a | a a a a a a a a | a a a a
+  (quant 100)
+  o3 g16 a f+ a g a e a
+  o3 f+ a d e f d f+ d g d g+ d a d b- d
+  o3 b d > c < d > c+ < d > d < d > e- < d > e < d > f < d > f+ < d > f+ < d
+  o4 g < b d b > g < b > g < b > g < b d b > g < b > g < b
+  o4 g < a d a > g < a > g < a > g < a d a > g < a > g < a
+  o4 f+ c < d > c f+ c f+ c f+ c < d > c f+ c f+ c
 
-  V1: (quant 100)
-    o3 g16 a f+ a g a e a
-    o3 f+ a d e f d f+ d g d g+ d a d b- d
-    o3 b d > c < d > c+ < d > d < d > e- < d > e < d > f < d > f+ < d > f+ < d
-    o4 g < b d b > g < b > g < b > g < b d b > g < b > g < b
-    o4 g < a d a > g < a > g < a > g < a d a > g < a > g < a
-    o4 f+ c < d > c f+ c f+ c f+ c < d > c f+ c f+ c
-
-  V0: # line up voices for final chord
-
+  # final chord
   V1: o2 g1
   V2: o3 r16 b8.~2.
   V3: o4 r8  g8~2.
+
+# Just the open A string of the %weaving part above.
+cello "aux":
+  @weaving
+  (quant 65) (volume 70)
+  o3 r16 a8 a a a | a a a a a a a a | a a a a a a a a | a a a a
