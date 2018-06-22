@@ -5,7 +5,6 @@
 
 ; events
 (defrecord Note [offset instrument volume track-volume panning midi-note pitch duration voice])
-(defrecord Function [offset instrument function])
 
 ; offset
 (defrecord AbsoluteOffset [offset])
