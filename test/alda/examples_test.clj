@@ -14,32 +14,29 @@
   ;
   ; On the plus side, this does allow us to easily test only certain scores by
   ; commenting out the ones we don't want to test.
-  '[
-   across_the_sea
-   awobmolg
-   bach_cello_suite_no_1
-   clapping_music
-   debussy_quartet
-   dot_accessor
-   entropy
-   gau
-   hello_world
-   jimenez-divertimento
-   key_signature
-   modes1
-   modes2
-   multi-poly
-   nesting
-   overriding-a-global-attribute
-   panning
-   percussion
-   phase
-   poly
-   printing
-   seconds_and_milliseconds
-   variables
-   variables-2
-   ])
+  '[across_the_sea
+    awobmolg
+    bach_cello_suite_no_1
+    clapping_music
+    debussy_quartet
+    dot_accessor
+    entropy
+    gau
+    hello_world
+    jimenez-divertimento
+    key_signature
+    modes1
+    modes2
+    multi-poly
+    nesting
+    overriding-a-global-attribute
+    panning
+    percussion
+    phase
+    poly
+    seconds_and_milliseconds
+    variables
+    variables-2])
 
 (def longest-score-name-length
   (apply max (map (comp count str) example-scores)))

@@ -24,19 +24,19 @@
    internal duration, which will be the duration last specified on a note or
    rest in that instrument's part."
   ([pitch]
-    (note pitch nil false))
+   (note pitch nil false))
   ([pitch x]
     ; x could be a duration or :slur
-    (let [duration (when (map? x) x)
-          slur?    (= x :slur)]
-      (note pitch duration slur?)))
+   (let [duration (when (map? x) x)
+         slur?    (= x :slur)]
+     (note pitch duration slur?)))
   ([{:keys [letter accidentals]} {:keys [beats ms slurred]} slur?]
-     {:event-type  :note
-      :letter      letter
-      :accidentals accidentals
-      :beats       beats
-      :ms          ms
-      :slur?       (or slur? slurred)}))
+   {:event-type  :note
+    :letter      letter
+    :accidentals accidentals
+    :beats       beats
+    :ms          ms
+    :slur?       (or slur? slurred)}))
 
 (defn pause
   "Causes every instrument in :current-instruments to rest (not play) for the
@@ -46,9 +46,9 @@
    duration, which will be the duration last specified on a note or rest in
    that instrument's part."
   [& [{:keys [beats ms] :as dur}]]
-   {:event-type :rest
-    :beats      beats
-    :ms         ms})
+  {:event-type :rest
+   :beats      beats
+   :ms         ms})
 
 (defn chord
   "Causes every instrument in :current-instruments to play each note in the
@@ -209,16 +209,6 @@
     {:event-type :cram
      :duration   duration
      :events     events}))
-
-(defn schedule
-  "Schedules an arbitrary function to be called at the current point in the
-   score (determined by the current instrument's marker and offset).
-
-   If there are multiple current instruments, the function will be executed
-   once for each instrument, at the marker + offset of that instrument."
-  [f]
-  {:event-type :function
-   :function   f})
 
 (defn set-variable
   "Defines any number of events as a variable so that they can be referenced by

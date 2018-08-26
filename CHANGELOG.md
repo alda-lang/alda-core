@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.4.0 (2018-06-22)
+
+* Removed the "scheduled functions" feature, which isn't currently very useful
+  and will be unsupported soon. See
+  [#65](https://github.com/alda-lang/alda-core/pull/65) for more details.
+
 ## 0.3.10 (2018-02-28)
 
 * Fixed a minor bug in the parser: there was an edge case where a "get variable"
