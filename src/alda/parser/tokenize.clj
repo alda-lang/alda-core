@@ -584,6 +584,12 @@
           (-> parser (read-to-buffer character))
           (-> parser (unexpected-char-error character)))
 
+        #{\space}
+        (-> parser (advance character))
+
+        #{\newline}
+        (-> parser (parse-newline character))
+
         ; else
         (-> parser
             (emit-token! :pop-stack? true)

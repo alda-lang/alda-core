@@ -28,6 +28,11 @@
   [{:keys [stack] :as parser}]
   (-> stack peek :content))
 
+(defn previous-event
+  [{:keys [stack] :as parser}]
+  (when-not (empty? stack)
+    (-> stack pop peek)))
+
 (defn previous-event-type
   [{:keys [stack] :as parser}]
   (when-not (empty? stack)
@@ -181,8 +186,13 @@
 
 (defmethod alda-event :repeat
   [{:keys [content]}]
-  (let [[times event] content]
-    (vec (repeat times (alda-event-with-metadata event)))))
+  (let [[repeats event] content]
+    (vec (event/times repeats (alda-event-with-metadata event)))))
+
+(defmethod alda-event :repeat-num
+  [{:keys [content]}]
+  (let [[repeat-nums event] content]
+    (vector repeat-nums (alda-event-with-metadata event))))
 
 (defmethod alda-event :rest
   [{:keys [content chord?] :as event}]
@@ -304,6 +314,26 @@
                                 pop
                                 (conj repeat-event)))))
       (-> parser (unexpected-token-error event)))
+
+    (= :repeat-num (:type event))
+    (if (and (repeatable? (current-event-type parser))
+             (not (:open? (current-event parser)))
+             (not (empty? (last-open-event parser))))
+      (let [to-range        (fn [[_ from _ to]]
+                              (let [int-from  (Integer/parseInt from)
+                                    int-to    (when (not (nil? to)) (Integer/parseInt to))]
+                                (range int-from (inc (or int-to int-from)))))
+            repeat-nums     (->> (:content event)
+                                 (re-seq #"(\d+)(\-)?(\d+)?")
+                                 (mapcat to-range))
+            event-to-repeat (peek stack)
+            repeat-event    (assoc event :content [repeat-nums event-to-repeat])]
+         (-> parser
+            (update :stack #(-> %
+                                pop
+                                (conj repeat-event)))))
+      (-> parser (unexpected-token-error event)))
+
 
     ;; EOF can terminate a variable definition
     (and (= :EOF event) (= :set-variable (:type (last-open-event parser))))
@@ -509,6 +539,10 @@
   [{:keys [stack] :as parser} token]
   (-> parser (push-event-when token :repeat)))
 
+(defn parse-repeat-num
+  [{:keys [stack] :as parser} token]
+  (-> parser (push-event-when token :repeat-num)))
+
 (defn parse-voice
   [parser token]
   (-> parser (push-event-when token :voice)))
@@ -661,6 +695,7 @@
         (parse-note-length p t)
         (parse-octave-change p t)
         (parse-repeat p t)
+        (parse-repeat-num p t)
         (parse-voice p t)
         (parse-tie p t)
         (start-parsing-note p t)

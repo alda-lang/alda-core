@@ -134,49 +134,50 @@
   {:event-type :end-voice-group})
 
 (defn- times-select
-  ; Process:
-  ; 1) if the input is a single pair, wrap in brackets
-  ;    (so that map can iterate properly)
-  ;    e.g. [note1 [1 3]] -> [[note1 [0 2]]]
-  ; 2) for each unpaired event, pair it with a repetition vector
-  ;    (assume that unpaired = repeat each time)
-  ;    + decrement all reps (to match future indexing)
-  ;    e.g. [[note1 [1 3]] note2] -> [[note1 [0 2]] [note2 [0 1 2]]]
-  ; 3) if multiple events associated with one rep vector, then pair that rep
-  ;    with each event
-  ;    e.g. [[[note2 note3] [2]]] -> [[note2 [2]] [note3 [2]]]
-  ; 4) repeat the entire zipped sequence, index each repetition
-  ; 5) for a certain indexed repetition, remove all events where that index
-  ;    does not appear in the event's rep vector
   [n event]
-  (let [wrapped-input (if (and (contains? (first event) :event-type)
-                               (every? number? (last event)))
-                        [event]
-                        event)
-        wrapped-evnts (mapv
-                        (fn [evnt-or-pair]
-                          (let [evnt (first evnt-or-pair)
-                                reps (last evnt-or-pair)]
-                            (if (map? evnt-or-pair)
-                              [evnt-or-pair (range n)]
-                              [evnt (map dec reps)])))
-                        wrapped-input)
-        expanded (mapcat
-                   (fn [[evnt rep :as pair]]
-                     (if (vector? evnt)
-                       (map #(vector % rep) evnt)
-                       [pair]))
-                   wrapped-evnts)
-        repeated (map-indexed vector (repeat n expanded))]
+        ; if the input is a single pair, wrap in brackets
+        ; so that map can iterate properly
+        ; e.g. [note1 [1 3]] -> [[note1 [1 3]]]
+  (let [wrap-input     (fn [pair-or-vec]
+                         (if (and (contains? (second pair-or-vec) :event-type)
+                                 (every? number? (first pair-or-vec)))
+                          (vector pair-or-vec)
+                          pair-or-vec))
 
-    (mapv
-      (fn [[index event-reps]]
-        (mapv first
-              (filter
-                (fn [[evnt rep]]
-                  (some #(= index %) rep))
-                event-reps)))
-      repeated)))
+        ; for each unpaired event, pair it with a repetition vector
+        ; (assume that unpaired = repeat each time)
+        ; + decrement all reps to match future indexing
+        ; e.g. [[note1 [1 3]] note2] -> [[note1 [0 2]] [note2 [0 1 2]]]
+        wrap-unpaired  (fn [evnt-or-pair]
+                         (if (map? evnt-or-pair)
+                           (vector (range n) evnt-or-pair)
+                           (let [reps   (first evnt-or-pair)
+                                 evnt   (second evnt-or-pair)]
+                             (vector (map dec reps) evnt))))
+
+        ; if multiple events associated with one rep vector, then pair that rep
+        ; with each event
+        ; e.g. [[[note2 note3] [2]]] -> [[note2 [2]] [note3 [2]]]
+        expand-seq     (fn [[rep evnt :as pair]]
+                         (if (vector? evnt)
+                           (map #(vector rep %) evnt)
+                           (vector pair)))
+
+        ; repeat and index each repetition.
+        ; for a certain indexed repetition, remove all events where that index
+        ; does not appear in the event's rep vector
+        filter-reps    (fn [index reps+events]
+                         (mapv second
+                            (filter (fn [[rep _]]
+                                        (some #(= index %) rep))
+                                    reps+events)))]
+
+    (->> event
+         wrap-input
+         (mapcat (comp expand-seq wrap-unpaired))
+         (repeat n)
+         (map-indexed filter-reps)
+         vec)))
 
 (defn times
   "Repeats an Alda event (or sequence of events) `n` times.
