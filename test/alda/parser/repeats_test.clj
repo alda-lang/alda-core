@@ -34,10 +34,6 @@
            (parse-input "c8 * 7" :output :events))))
 
   (testing "alternate endings/numbered repeats (lisp)"
-    (is (= [[(alda.lisp/note (alda.lisp/pitch :c))]]
-           (alda.lisp/times 1
-              [[1] (alda.lisp/note (alda.lisp/pitch :c))])))
-
     (is (= [[(alda.lisp/note (alda.lisp/pitch :c))
             (alda.lisp/note (alda.lisp/pitch :d))]
             [(alda.lisp/note (alda.lisp/pitch :c))
@@ -60,10 +56,6 @@
                         (alda.lisp/note (alda.lisp/pitch :e))]]])))))
 
   (testing "alternate endings/numbered repeats (parser)"
-    (is (= (alda.lisp/times 1
-              [[1] (alda.lisp/note (alda.lisp/pitch :c))])
-           (parse-input "[c'1]*1" :output :events)))
-
     (is (= (alda.lisp/times 2
               [(alda.lisp/note (alda.lisp/pitch :c))
                [[1] (alda.lisp/note (alda.lisp/pitch :d))]
@@ -74,6 +66,20 @@
               [[[1 2 4] (alda.lisp/note (alda.lisp/pitch :c))]
                [[2 3]  [(alda.lisp/note (alda.lisp/pitch :d))
                         (alda.lisp/note (alda.lisp/pitch :e))]]])
-           (parse-input "[c'1-2,4 [d e]'2-3]*4" :output :events))))
+           (parse-input "[c'1-2,4 [d e]'2-3]*4" :output :events)))
+
+    (is (= (alda.lisp/times 3
+              [[[1 3] (alda.lisp/cram
+                        (alda.lisp/note (alda.lisp/pitch :c))
+                        (alda.lisp/note (alda.lisp/pitch :d))
+                        (alda.lisp/note (alda.lisp/pitch :e))
+                        (alda.lisp/duration (alda.lisp/note-length 2)))]
+               [[2 4] [(alda.lisp/note (alda.lisp/pitch :f))
+                       (alda.lisp/pause (alda.lisp/duration (alda.lisp/note-length 8)))
+                       (alda.lisp/octave :up)
+                       (alda.lisp/note (alda.lisp/pitch :g))]]])
+           (parse-input "[{c d e}2'1,3 [f r8 > g]'2,4]*3" :output :events))))
+
+
 
 
