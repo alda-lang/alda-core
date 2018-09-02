@@ -148,9 +148,10 @@
         ; if event seq is associated with one rep vector, then pair that rep
         ; with each event in the sequence
         ; e.g. [[[2] [note2 note3]]] -> [[[2] note2] [[2] note3]]
-        expand-seq     (fn [[rep evnt :as pair]]
+        expand-seq     (fn [[reps evnt :as pair]]
+                         {:pre [(not-any? #(or (neg? %) (>= % n)) reps)]}
                          (if (vector? evnt)
-                           (map #(vector rep %) evnt)
+                           (map #(vector reps %) evnt)
                            (vector pair)))
 
         ; repeat and index each repetition;

@@ -307,7 +307,7 @@
     (if (and (repeatable? (current-event-type parser))
              (not (:open? (current-event parser))))
       (let [repeats         (Integer/parseInt (:content event))
-            event-to-repeat (peek stack)
+            event-to-repeat (-> stack peek (dissoc :repeat-num?))
             repeat-event    (assoc event :content [repeats event-to-repeat])]
         (-> parser
             (update :stack #(-> %
@@ -318,14 +318,17 @@
     (= :repeat-num (:type event))
     (if (and (repeatable? (current-event-type parser))
              (not (:open? (current-event parser)))
-             (not (empty? (last-open-event parser))))
-      (let [to-range        (fn [[_ from _ to]]
+             (= :event-seq (:type (last-open-event parser))))
+      (let [parse-range     (fn [[match from _ to]]
                               (let [int-from  (Integer/parseInt from)
-                                    int-to    (when (not (nil? to)) (Integer/parseInt to))]
-                                (range int-from (inc (or int-to int-from)))))
+                                    int-to    (if (nil? to) int-from
+                                                (Integer/parseInt to))]
+                                (if (> int-from int-to)
+                                  (emit-error! parser (format "Invalid range: %s" match))
+                                  (range int-from (inc int-to)))))
             repeat-nums     (->> (:content event)
                                  (re-seq #"(\d+)(\-)?(\d+)?")
-                                 (mapcat to-range))
+                                 (mapcat parse-range))
             event-to-repeat (peek stack)
             repeat-event    (assoc event :content [repeat-nums event-to-repeat])]
          (-> parser
@@ -415,7 +418,9 @@
           (update :stack #(->> %
                                (drop-last (inc (count events)))
                                vec))
-          (push-event {:type container :content events})))))
+          (push-event (merge {:type container :content events}
+                        (when (some #(= :repeat-num (:type %)) events)
+                              {:repeat-num? true})))))))
 
 (def push-cram
   (push-container :cram))
@@ -671,6 +676,18 @@
           (rename-current-event :get-variable)
           (read-token! t)))))
 
+(defn assert-repeat-num
+  [parser token]
+  (when (and (= :event-seq (current-event-type parser))
+             (:repeat-num? (current-event parser))
+             (not (token-is :repeat token)))
+    (let [[_ [line column] _] token
+          error-msg  (format (str "Sequence at line %s, column %s contains "
+                               "alternate repeat numbers, but is not repeated")
+                             line
+                             column)]
+      (-> parser (emit-error! error-msg)))))
+
 (defn read-token!
   "Reads one token `t` and updates parser `p`.
 
@@ -682,6 +699,7 @@
         (ignore-comment p t)
         (disambiguate-name p t)
         (handle-newline p t)
+        (assert-repeat-num p t)
         (continue-parsing-instrument-call p t)
         (continue-parsing-chord p t)
         (parse-accidentals p t)
