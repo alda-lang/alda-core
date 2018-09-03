@@ -63,6 +63,12 @@
            (parse-input "[{c d e}2'1,3 [f r8 > g]'2-4]*4" :output :events))))
 
   (testing "alternate endings parse errors"
+    (is (thrown-with-msg? Exception #"Unexpected"
+          (parse-input "[c'1,4-]*4" :output :events-or-error)))
+
+    (is (thrown-with-msg? Exception #"Unexpected"
+          (parse-input "[c'1,-]*4" :output :events-or-error)))
+
     (is (thrown-with-msg? Exception #"Invalid range"
           (parse-input "[c'4-1 d]*4" :output :events-or-error)))
 

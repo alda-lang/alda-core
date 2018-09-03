@@ -568,19 +568,15 @@
 
 (defn parse-repeat-num
   [parser character]
-  (let [buffer (current-token-content parser)]
+  (let [buffer (current-token-content parser)
+        digits (set "0123456789")]
     (when (currently-parsing? parser :repeat-num)
       (condp contains? character
         #{\0 \1 \2 \3 \4 \5 \6 \7 \8 \9}
         (-> parser (read-to-buffer character))
 
-        #{\-}
-        (if (re-matches #"(\d+(\-\d+)?,)*\d+" buffer)
-          (-> parser (read-to-buffer character))
-          (-> parser (unexpected-char-error character)))
-
-        #{\,}
-        (if (re-matches #"(\d+(\-\d+)?,)*\d+(\-\d+)?" buffer)
+        #{\- \,}
+        (if (contains? digits (last buffer))
           (-> parser (read-to-buffer character))
           (-> parser (unexpected-char-error character)))
 
@@ -591,9 +587,11 @@
         (-> parser (parse-newline character))
 
         ; else
-        (-> parser
-            (emit-token! :pop-stack? true)
-            (read-character! character))))))
+        (if (contains? digits (last buffer))
+          (-> parser
+              (emit-token! :pop-stack? true)
+              (read-character! character))
+          (-> parser (unexpected-char-error character)))))))
 
 
 (defn parse-rest
