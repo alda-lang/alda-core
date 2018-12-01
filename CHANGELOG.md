@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 0.5.0 (2018-12-01)
+
+* New feature: alternate phrases during iterations of repeats.
+
+  This will be documented soon in alda-lang/alda, but for now, see
+  [#17](https://github.com/alda-lang/alda-core/issues/17) for more information.
+
 ## 0.4.0 (2018-06-22)
 
 * Removed the "scheduled functions" feature, which isn't currently very useful
