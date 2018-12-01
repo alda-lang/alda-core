@@ -29,6 +29,7 @@
    :note-rest-or-name "note, rest, or name"
    :octave-change     "octave change"
    :repeat            "repeat"
+   :repeat-num        "repeat number"
    :rest              "rest"
    :slash             "'/'"})
 
@@ -261,6 +262,10 @@
 (defn start-parsing-repeat
   [p c]
   (start-parsing p c :repeat {:start-char \* :ignore-first-char true}))
+
+(defn start-parsing-repeat-num
+  [p c]
+  (start-parsing p c :repeat-num {:start-char \' :ignore-first-char true}))
 
 (defn start-parsing-voice
   [p c]
@@ -527,7 +532,7 @@
                          (read-character! character))]
       (cond
         (and ((set "abcdefg") char1)
-             ((conj (set "# \n+-_/~*}]<>0123456789") :EOF) character))
+             ((conj (set "# \n+-_/~*'}]<>0123456789") :EOF) character))
         (-> parser (parse :note))
 
         (and (= \r char1)
@@ -560,6 +565,34 @@
 
         :else
         (-> parser (unexpected-char-error character))))))
+
+(defn parse-repeat-num
+  [parser character]
+  (let [buffer (current-token-content parser)
+        digits (set "0123456789")]
+    (when (currently-parsing? parser :repeat-num)
+      (condp contains? character
+        #{\0 \1 \2 \3 \4 \5 \6 \7 \8 \9}
+        (-> parser (read-to-buffer character))
+
+        #{\- \,}
+        (if (contains? digits (last buffer))
+          (-> parser (read-to-buffer character))
+          (-> parser (unexpected-char-error character)))
+
+        #{\space}
+        (-> parser (advance character))
+
+        #{\newline}
+        (-> parser (parse-newline character))
+
+        ; else
+        (if (contains? digits (last buffer))
+          (-> parser
+              (emit-token! :pop-stack? true)
+              (read-character! character))
+          (-> parser (unexpected-char-error character)))))))
+
 
 (defn parse-rest
   [parser character]
@@ -690,6 +723,7 @@
         (parse-note-length p c)
         (parse-accidentals p c)
         (parse-repeat p c)
+        (parse-repeat-num p c)
         (parse-slash p c)
         (parse-colon p c)
         (parse-barline p c)
@@ -708,6 +742,7 @@
         (start-parsing-note-rest-or-name p c)
         (start-parsing-nickname p c)
         (start-parsing-repeat p c)
+        (start-parsing-repeat-num p c)
         (finish-parsing p c)
         (skip-whitespace p c)
         (unexpected-char-error p c))

@@ -39,7 +39,7 @@
           quant-duration     (* full-duration quant)
           midi-note          (if (= event-type :note)
                                (determine-midi-note event octave key-signature
-                                transposition))
+                                                    transposition))
           pitch              (if (= event-type :note)
                                (midi->hz reference-pitch midi-note))
           note               (if (= event-type :note)

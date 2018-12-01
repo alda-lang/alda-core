@@ -133,10 +133,61 @@
   []
   {:event-type :end-voice-group})
 
-(defn times
-  "Repeats an Alda event (or sequence of events) `n` times."
+(defn- times-select
   [n event]
-  (vec (repeat n event)))
+  (let [; for each unpaired event, pair it with a repetition vector
+        ; (assume that unpaired = repeat each time)
+        ; + decrement all reps to match future indexing
+        ; e.g. [[[1 3] note1] note2] -> [[[0 2] note1] [[0 1 2] note2]] (n = 3)
+        wrap-unpaired  (fn [evnt-or-pair]
+                         (if (map? evnt-or-pair)
+                           (vector (range n) evnt-or-pair)
+                           (let [[reps evnt] evnt-or-pair]
+                             (vector (map dec reps) evnt))))
+
+        ; if event seq is associated with one rep vector, then pair that rep
+        ; with each event in the sequence
+        ; e.g. [[[2] [note2 note3]]] -> [[[2] note2] [[2] note3]]
+        expand-seq     (fn [[reps evnt :as pair]]
+                         {:pre [(not-any? #(or (neg? %) (>= % n)) reps)]}
+                         (if (vector? evnt)
+                           (map #(vector reps %) evnt)
+                           (vector pair)))
+
+        ; repeat and index each repetition;
+        ; for a certain indexed repetition, remove all events where that index
+        ; does not appear in the event's rep vector
+        filter-reps    (fn [index reps+events]
+                         (->> reps+events
+                              (filter (fn [[rep _]]
+                                        (some #(= index %) rep)))
+                              (mapv second)))]
+
+    (->> event
+         (mapcat (comp expand-seq wrap-unpaired))
+         (repeat n)
+         (map-indexed filter-reps)
+         vec)))
+
+(defn times
+  "Repeats an Alda event (or sequence of events) `n` times.
+   Also implements the alternate endings function. Takes as input a sequence of
+   events optionally paired with which repetitions they play in. If no
+   repetition position is specified for a certain event, then that event will
+   play during all repetitions.
+   e.g. (times 4 [[[1 3] note1] [[2] [note2 note3]] note4]) results in
+        [[note1 note4] [note2 note3 note4] [note1 note4] [note4]]"
+  [n event]
+  (cond
+    ; numbered repeat
+    ; TODO: more robust/flexible condition check to differentiate between the
+    ;       input for simple vs. numbered repeat
+    (some number? (flatten event))
+    (times-select n event)
+
+    ; simple repeat
+    :else
+    (vec (repeat n event))))
 
 (defn cram
   "A cram expression evaluates the events it contains, time-scaled based on the

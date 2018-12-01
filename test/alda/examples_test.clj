@@ -15,6 +15,7 @@
   ; On the plus side, this does allow us to easily test only certain scores by
   ; commenting out the ones we don't want to test.
   '[across_the_sea
+    alternate-endings
     awobmolg
     bach_cello_suite_no_1
     clapping_music

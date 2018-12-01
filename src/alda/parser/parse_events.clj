@@ -28,6 +28,11 @@
   [{:keys [stack] :as parser}]
   (-> stack peek :content))
 
+(defn previous-event
+  [{:keys [stack] :as parser}]
+  (when-not (empty? stack)
+    (-> stack pop peek)))
+
 (defn previous-event-type
   [{:keys [stack] :as parser}]
   (when-not (empty? stack)
@@ -181,8 +186,13 @@
 
 (defmethod alda-event :repeat
   [{:keys [content]}]
-  (let [[times event] content]
-    (vec (repeat times (alda-event-with-metadata event)))))
+  (let [[repeats event] content]
+    (vec (event/times repeats (alda-event-with-metadata event)))))
+
+(defmethod alda-event :repeat-num
+  [{:keys [content]}]
+  (let [[repeat-nums event] content]
+    (vector repeat-nums (alda-event-with-metadata event))))
 
 (defmethod alda-event :rest
   [{:keys [content chord?] :as event}]
@@ -297,13 +307,36 @@
     (if (and (repeatable? (current-event-type parser))
              (not (:open? (current-event parser))))
       (let [repeats         (Integer/parseInt (:content event))
-            event-to-repeat (peek stack)
+            event-to-repeat (-> stack peek (dissoc :repeat-num?))
             repeat-event    (assoc event :content [repeats event-to-repeat])]
         (-> parser
             (update :stack #(-> %
                                 pop
                                 (conj repeat-event)))))
       (-> parser (unexpected-token-error event)))
+
+    (= :repeat-num (:type event))
+    (if (and (repeatable? (current-event-type parser))
+             (not (:open? (current-event parser)))
+             (= :event-seq (:type (last-open-event parser))))
+      (let [parse-range     (fn [[match from _ to]]
+                              (let [int-from  (Integer/parseInt from)
+                                    int-to    (if (nil? to) int-from
+                                                (Integer/parseInt to))]
+                                (if (> int-from int-to)
+                                  (emit-error! parser (format "Invalid range: %s" match))
+                                  (range int-from (inc int-to)))))
+            repeat-nums     (->> (:content event)
+                                 (re-seq #"(\d+)(\-)?(\d+)?")
+                                 (mapcat parse-range))
+            event-to-repeat (peek stack)
+            repeat-event    (assoc event :content [repeat-nums event-to-repeat])]
+         (-> parser
+            (update :stack #(-> %
+                                pop
+                                (conj repeat-event)))))
+      (-> parser (unexpected-token-error event)))
+
 
     ;; EOF can terminate a variable definition
     (and (= :EOF event) (= :set-variable (:type (last-open-event parser))))
@@ -385,7 +418,9 @@
           (update :stack #(->> %
                                (drop-last (inc (count events)))
                                vec))
-          (push-event {:type container :content events})))))
+          (push-event (merge {:type container :content events}
+                        (when (some #(= :repeat-num (:type %)) events)
+                              {:repeat-num? true})))))))
 
 (def push-cram
   (push-container :cram))
@@ -508,6 +543,10 @@
 (defn parse-repeat
   [{:keys [stack] :as parser} token]
   (-> parser (push-event-when token :repeat)))
+
+(defn parse-repeat-num
+  [{:keys [stack] :as parser} token]
+  (-> parser (push-event-when token :repeat-num)))
 
 (defn parse-voice
   [parser token]
@@ -637,6 +676,18 @@
           (rename-current-event :get-variable)
           (read-token! t)))))
 
+(defn assert-repeat-num
+  [parser token]
+  (when (and (= :event-seq (current-event-type parser))
+             (:repeat-num? (current-event parser))
+             (not (token-is :repeat token)))
+    (let [[_ [line column] _] token
+          error-msg  (format (str "Sequence at line %s, column %s contains "
+                               "alternate repeat numbers, but is not repeated")
+                             line
+                             column)]
+      (-> parser (emit-error! error-msg)))))
+
 (defn read-token!
   "Reads one token `t` and updates parser `p`.
 
@@ -648,6 +699,7 @@
         (ignore-comment p t)
         (disambiguate-name p t)
         (handle-newline p t)
+        (assert-repeat-num p t)
         (continue-parsing-instrument-call p t)
         (continue-parsing-chord p t)
         (parse-accidentals p t)
@@ -661,6 +713,7 @@
         (parse-note-length p t)
         (parse-octave-change p t)
         (parse-repeat p t)
+        (parse-repeat-num p t)
         (parse-voice p t)
         (parse-tie p t)
         (start-parsing-note p t)
