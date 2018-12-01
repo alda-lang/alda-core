@@ -12,7 +12,7 @@
                     [io.aviso/pretty             "0.1.34"       :scope "test"]
 
                     ; alda.core
-                    [org.clojure/clojure    "1.8.0"]
+                    [org.clojure/clojure    "1.9.0"]
                     [org.clojure/core.async "0.3.443"]
                     [com.taoensso/timbre    "4.10.0"]
                     [djy                    "0.1.4"]
