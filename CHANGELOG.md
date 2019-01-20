@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 0.5.1 (2019-01-19)
+
+* Rewrote `alda.lisp.instruments.midi` (the definitions of all the MIDI
+  instruments that Alda knows about) in a more data-oriented way.
+
+  This will allow us to add an `alda instruments` command (and corresponding
+  `:instruments` Alda REPL command) that can list out the instruments available.
+
 ## 0.5.0 (2018-12-01)
 
 * New feature: alternate phrases during iterations of repeats.
