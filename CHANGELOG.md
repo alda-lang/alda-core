@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.5.2 (2019-01-28)
+
+* Made `alda.lisp.score/new-score` public.
+
 ## 0.5.1 (2019-01-19)
 
 * Rewrote `alda.lisp.instruments.midi` (the definitions of all the MIDI

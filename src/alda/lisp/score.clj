@@ -1,10 +1,8 @@
 (ns alda.lisp.score
-  (:require [alda.lisp.model.event     :refer (update-score)]
-            [alda.lisp.model.offset    :refer (absolute-offset)]
-            [alda.lisp.model.records   :refer (->AbsoluteOffset)]
-            [taoensso.timbre           :as    log]))
+  (:require [alda.lisp.model.event :refer (update-score)]
+            [taoensso.timbre       :as    log]))
 
-(defn- new-score
+(defn new-score
   []
   (log/debug "Starting new score.")
   {
@@ -38,8 +36,7 @@
    ; the current state of :instruments within that voice
    ; e.g. {1 {"guitar-abc123" {:current-offset (->AbsoluteOffset 1000.0) ...}}
    ;       2 {"guitar-abc123" {:current-offset (->AbsoluteOffset 2000.0) ...}}}
-   :voice-instruments   nil
-   })
+   :voice-instruments   nil})
 
 (defn continue
   "Continues the score represented by the score map `score`, evaluating the
