@@ -64,7 +64,8 @@
    the score accordingly) and returns the completed score.
 
    A score and its evaluation context are effectively the same thing. This
-   means that an evaluated score can be used as an input to `continue-score`"
+   means that an evaluated score can be used as an input to `continue`, which
+   returns an updated score."
   [& body]
   (apply continue (new-score) body))
 
