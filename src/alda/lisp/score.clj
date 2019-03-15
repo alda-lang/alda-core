@@ -48,14 +48,15 @@
   "Convenience function for dealing with Alda scores stored in atoms.
 
    (continue! my-score
-     (part 'bassoon'
+     (part \"bassoon\"
        (note (pitch :c))))
 
    is short for:
 
-   (apply swap! my-score continue
-     (part 'bassoon'
-       (note (pitch :c))))"
+   (swap! my-score
+          continue
+          (part \"bassoon\"
+            (note (pitch :c))))"
   [score-atom & body]
   (apply swap! score-atom continue body))
 
