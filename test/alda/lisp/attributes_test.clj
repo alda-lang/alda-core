@@ -160,21 +160,18 @@
                     (tempo 60))
             piano (get-instrument s "piano")]
         (is (== (:tempo piano) 60)))))
-
-  (testing "metric-modulation")
+  (testing "metric-modulation"
     (let [s     (score (part "piano"))
+          ;; ratio of (half : dotted quarter) = 4/3
+          ;; (* 120 = 160)
+          s     (continue s
+                  (metric-modulation "4." 2))
           piano (get-instrument s "piano")]
-
-      ;; ratio of (half : dotted quarter) = 4/3
-      ;; (* 120 = 160)
-      (let [s     (continue s
-                    (metric-modulation "4." 2))
-            piano (get-instrument s "piano")]
-        (is (== (:tempo piano) 160)))
+        (is (== (:tempo piano) 160))
 
       (let [s     (continue s
                     (tempo 60)
                     (metric-modulation 4 8))
             piano (get-instrument s "piano")]
-        (is (== (:tempo piano) 30)))))
+        (is (== (:tempo piano) 30))))))
 
