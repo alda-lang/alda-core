@@ -100,7 +100,7 @@
                            (* (parse-note-length note-length) val)))))
 
 (defn tempo!
-  "Global version of overwritten tempo function"
+  "Global version of `tempo`."
   ([val]
    (tempo! 4 val))
 
@@ -118,7 +118,7 @@
    (tempo {:ratio (/ (parse-note-length new) (parse-note-length old))})))
 
 (defn metric-modulation!
-  "Global version"
+  "Global version of `metric-modulation`."
   ([old new]
    (tempo! {:ratio (/ (parse-note-length new) (parse-note-length old))})))
 
