@@ -88,7 +88,7 @@
    :instruments and :nicknames may be added."
   [{:keys [nicknames instruments] :as score}
    {:keys [names nickname]}]
-  (let [instances
+  (let [instances*
         (cond
           ; e.g. foo, foo "bar"
           (= (count names) 1)
@@ -171,7 +171,15 @@
               (for [name names] (assoc (new-part name) :called name))
 
               :else
-              (mapcat second insts))))]
+              (mapcat second insts))))
+
+        ;; If this is the first time we're adding an instrument part to the
+        ;; score, then we designate the first part as being the tempo "master."
+        instances
+        (-> (first instances*)
+            (merge (when (empty? instruments)
+                     {:tempo/role :master}))
+            (cons (rest instances*)))]
     (assoc score
       :nicknames           (if nickname
                              (merge nicknames

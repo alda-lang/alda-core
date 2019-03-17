@@ -387,3 +387,28 @@
                   (part "bar.foo.piano"))]
           (is (= 1 (count (:current-instruments s))))
           (is (some #(.startsWith % "piano-") (:current-instruments s))))))))
+
+(deftest tempo-role-tests
+  (testing "in a score with one instrument part,"
+    (let [s     (score
+                  (part "piano")
+                  (note (pitch :c)))
+          piano (get-instrument s "piano")]
+      (testing "that part is the tempo master"
+        (is (= :master (:tempo/role piano))))))
+  (testing "in a score with multiple instrument parts,"
+    (let [s     (score
+                  (part "piano")
+                  (note (pitch :c))
+                  (part "guitar/trombone 'group'")
+                  (note (pitch :d))
+                  (note (pitch :e))
+                  (part "clarinet 'something'")
+                  (note (pitch :f)))
+          piano (get-instrument s "piano")]
+      (testing "the first part declared is the tempo master"
+        (is (= :master (:tempo/role piano))))
+      (testing "there is exactly 1 tempo master"
+        (let [insts (vals (:instruments s))]
+          (is (= 4 (count insts)))
+          (is (= 1 (count (filter #(= :master (:tempo/role %)) insts)))))))))
