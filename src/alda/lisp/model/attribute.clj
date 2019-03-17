@@ -30,17 +30,6 @@
     attr
     (throw (Exception. (str kw " is not a valid attribute.")))))
 
-(defn get-val-fn
-  "Given an attr (e.g. :tempo) and a user-friendly val (e.g. 100), returns the
-   function to apply to an instrument's existing value to update it to the new
-   value.
-
-   Throws an exception if the argument supplied is not a valid keyword name or
-   alias for an existing attribute."
-  [attr val]
-  (let [{:keys [transform-fn]} (get-attr attr)]
-    (transform-fn val)))
-
 (defn log-attribute-change
   [{:keys [id] :as inst} attr old-val new-val]
   (log/debugf "%s %s changed from %s to %s." id (str attr) old-val new-val))
@@ -49,7 +38,7 @@
   "Given an instrument map, a keyword representing an attribute, and a value,
    returns the updated instrument with that attribute update applied."
   [{:keys [beats-tally] :as score} inst attr val]
-  (let [{:keys [transform-fn kw-name]} (*attribute-table* attr)
+  (let [{:keys [transform-fn kw-name]} (get-attr attr)
         old-val (kw-name inst)
         new-val ((transform-fn val) old-val)]
     (when (and (not= old-val new-val) (not beats-tally))
