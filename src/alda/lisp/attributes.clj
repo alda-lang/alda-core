@@ -78,36 +78,36 @@
 (defattribute tempo
   "Current tempo. Used to calculate the duration of notes."
   :initial-val 120
-  :transform (fn [val]
-               (cond
-                 (map? val)
-                 (fn [old]
-                   (* (:ratio val) old))
+  :fn-name     set-tempo
+  :transform   (fn [val]
+                 (cond
+                   (map? val)
+                   (fn [old]
+                     (* (:ratio val) old))
 
-                 :else
-                 (pos-num val))))
+                   :else
+                   (pos-num val))))
 
 (defn tempo
   "Multi-arity function that allows for an additional parameter to represent
-   the tempo in terms of non-quarter notes (e.g.(tempo 2 60) <--> (tempo 120)).
-   Overwrites the single-argument function produced by defattribute"
+   the tempo in terms of non-quarter notes (e.g.(tempo 2 60) <--> (tempo 120))."
   ([val]
-    (tempo 4 val))
+   (tempo 4 val))
 
   ([note-length val]
-      (set-attribute :tempo (if (map? val)
-                              val
-                              (* (parse-note-length note-length) val)))))
+   (set-attribute :tempo (if (map? val)
+                           val
+                           (* (parse-note-length note-length) val)))))
 
 (defn tempo!
   "Global version of overwritten tempo function"
   ([val]
-    (tempo! 4 val))
+   (tempo! 4 val))
 
   ([note-length val]
-     (global-attribute :tempo (if (map? val)
-                                val
-                                (* (parse-note-length note-length) val)))))
+   (global-attribute :tempo (if (map? val)
+                              val
+                              (* (parse-note-length note-length) val)))))
 
 (defn metric-modulation
   "Express tempo in terms of metric modulation, where the new note takes the
