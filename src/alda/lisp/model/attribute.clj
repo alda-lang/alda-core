@@ -34,6 +34,19 @@
   [{:keys [id] :as inst} attr old-val new-val]
   (log/debugf "%s %s changed from %s to %s." id (str attr) old-val new-val))
 
+(defn- track-tempo-changes
+  "The tempo attribute is a special case because it has an impact on the MIDI
+   sequence that an Alda score generates.
+
+   Usually, we only need to worry about a part's current attribute values.
+   However, for tempo, we need to have a comprehensive history of each part's
+   tempo and every time it changed during the score."
+  [inst attr-name attr-val score]
+  (if (= :tempo attr-name)
+    (let [offset (-> inst :current-offset (absolute-offset score))]
+      (assoc-in inst [:tempo/values offset] attr-val))
+    inst))
+
 (defn apply-attribute
   "Given an instrument map, a keyword representing an attribute, and a value,
    returns the updated instrument with that attribute update applied."
@@ -43,7 +56,9 @@
         new-val ((transform-fn val) old-val)]
     (when (and (not= old-val new-val) (not beats-tally))
       (log-attribute-change inst kw-name old-val new-val))
-    (assoc inst kw-name new-val)))
+    (-> inst
+        (assoc kw-name new-val)
+        (track-tempo-changes kw-name new-val score))))
 
 (defmethod update-score :attribute-change
   [{:keys [current-instruments] :as score}
