@@ -96,11 +96,11 @@
 
 (defn set-log-level!
   ([]
-    (timbre/set-level! (if-let [level (System/getenv "TIMBRE_LEVEL")]
-                         (keyword (str/replace level #":" ""))
-                         :warn)))
+   (timbre/set-level! (if-let [level (System/getenv "TIMBRE_LEVEL")]
+                        (keyword (str/replace level #":" ""))
+                        :warn)))
   ([level]
-    (timbre/set-level! level)))
+   (timbre/set-level! level)))
 
 (defn log-to-file!
   [filename]
