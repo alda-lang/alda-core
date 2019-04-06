@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 0.5.3 (2019-04-06)
+
+* Instrument parts now track (local) tempo attribute changes. Instrument parts
+  now have `:tempo/values`, a map of offset (ms) to tempo (bpm).
+
+* Added the notion of `:tempo/role` to instrument parts. The first instrument
+  added to a score has the `:tempo/role` `:master`.
+
+* Added a top-level `:tempo/values` (also a map of offset (ms) to tempo (bpm))
+  to the score. These values are a merger of `{0 120}` (a default initial tempo
+  of 120 bpm), the `:tempo/values` of the part whose `:tempo/role` is `:master`,
+  and any global tempo changes.
+
 ## 0.5.2 (2019-01-28)
 
 * Made `alda.lisp.score/new-score` public.
