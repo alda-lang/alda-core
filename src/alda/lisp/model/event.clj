@@ -1,7 +1,5 @@
 (ns alda.lisp.model.event
-  (:require [alda.lisp.model.offset :refer (absolute-offset)]
-            [alda.lisp.model.records])
-  (:import  [alda.lisp.model.records RelativeOffset]))
+  (:require [alda.lisp.model.offset :refer (absolute-offset)]))
 
 (defmulti update-score*
   "See `update-score`."
