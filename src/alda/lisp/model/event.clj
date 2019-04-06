@@ -3,7 +3,27 @@
             [alda.lisp.model.records])
   (:import  [alda.lisp.model.records RelativeOffset]))
 
-(defmulti update-score
+(defmulti update-score*
+  "See `update-score`."
+  (fn [score event]
+    (cond
+      (or (= :nil event)
+          (nil? event)
+          (var? event))   :nil
+      (sequential? event) :event-sequence
+      :else               (:event-type event))))
+
+(defmethod update-score* :default
+  [_ event]
+  (throw (Exception. (str "Invalid event: " (pr-str event)))))
+
+(defmethod update-score* :nil
+  [score _]
+  ; pass score through unchanged
+  ; e.g. for side-effecting inline Clojure code
+  score)
+
+(defn update-score
   "Events in Alda are represented as maps containing, at the minimum, a value
    for :event-type to serve as a unique identifier (by convention, a keyword)
    to be used as a dispatch value.
@@ -14,23 +34,11 @@
 
    Lists/vectors are a special case -- they are reduced internally and treated
    as a single 'event sequence'."
-  (fn [score event]
-    (cond
-      (or (= :nil event)
-          (nil? event)
-          (var? event))   :nil
-      (sequential? event) :event-sequence
-      :else               (:event-type event))))
-
-(defmethod update-score :default
-  [_ event]
-  (throw (Exception. (str "Invalid event: " (pr-str event)))))
-
-(defmethod update-score :nil
-  [score _]
-  ; pass score through unchanged
-  ; e.g. for side-effecting inline Clojure code
-  score)
+  [score event]
+  ;; TODO: re-calculate "master tempo" view based on the global tempo attribute
+  ;; changes and local attribute changes of the instrument whose :tempo/role is
+  ;; :master
+  (update-score* score event))
 
 ; utility fns
 

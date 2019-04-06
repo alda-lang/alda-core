@@ -1,6 +1,6 @@
 (ns alda.lisp.model.attribute
   (:require [taoensso.timbre        :as    log]
-            [alda.lisp.model.event  :refer (update-score)]
+            [alda.lisp.model.event  :refer (update-score*)]
             [alda.lisp.model.offset :refer (absolute-offset)]
             [alda.lisp.score.util   :refer (update-instruments)]))
 
@@ -60,7 +60,7 @@
         (assoc kw-name new-val)
         (track-tempo-changes kw-name new-val score))))
 
-(defmethod update-score :attribute-change
+(defmethod update-score* :attribute-change
   [{:keys [current-instruments] :as score}
    {:keys [attr val] :as attr-change}]
   (update-instruments score

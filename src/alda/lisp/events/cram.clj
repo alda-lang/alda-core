@@ -1,5 +1,5 @@
 (ns alda.lisp.events.cram
-  (:require [alda.lisp.model.event :refer (update-score add-events)]
+  (:require [alda.lisp.model.event :refer (update-score update-score*)]
             [alda.lisp.score.util  :refer (update-instruments)]))
 
 (defn- tally-beats
@@ -67,7 +67,7 @@
           (assoc :duration-inside-cram (peek previous-duration-inside-cram))
           (update :previous-duration-inside-cram pop)))))
 
-(defmethod update-score :cram
+(defmethod update-score* :cram
   [{:keys [current-instruments beats-tally beats-tally-default] :as score}
    {:keys [events duration] :as cram}]
   (if beats-tally

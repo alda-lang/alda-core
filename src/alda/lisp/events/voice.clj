@@ -1,5 +1,5 @@
 (ns alda.lisp.events.voice
-  (:require [alda.lisp.model.event :refer (update-score)]
+  (:require [alda.lisp.model.event :refer (update-score update-score*)]
             [alda.lisp.score.util  :as    score]))
 
 (defn- update-instruments
@@ -24,7 +24,7 @@
       update-instruments
       (dissoc :voice-instruments)))
 
-(defmethod update-score :voice
+(defmethod update-score* :voice
   [{:keys [instruments] :as score}
    {:keys [number events] :as voice}]
   (if (zero? number)
@@ -35,7 +35,7 @@
                                #(if % % instruments)))]
       (reduce update-score score events))))
 
-(defmethod update-score :end-voice-group
+(defmethod update-score* :end-voice-group
   [score _]
   (end-voice-group score))
 

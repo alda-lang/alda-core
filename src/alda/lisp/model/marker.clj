@@ -1,5 +1,5 @@
 (ns alda.lisp.model.marker
-  (:require [alda.lisp.model.event   :refer (update-score)]
+  (:require [alda.lisp.model.event   :refer (update-score*)]
             [alda.lisp.model.offset  :refer (absolute-offset
                                              instruments-all-at-same-offset)]
             [alda.lisp.model.records :refer (->AbsoluteOffset
@@ -8,7 +8,7 @@
             [taoensso.timbre         :as    log])
   (:import  [alda.lisp.model.records RelativeOffset]))
 
-(defmethod update-score :marker
+(defmethod update-score* :marker
   [score {:keys [name] :as marker}]
   (if-let [abs-offset (instruments-all-at-same-offset score)]
     (let [offset (:offset abs-offset)]
@@ -18,7 +18,7 @@
     (throw (Exception. (str "Can't place marker" (str \" name \")
                             "- offset unclear.")))))
 
-(defmethod update-score :at-marker
+(defmethod update-score* :at-marker
   [{:keys [current-instruments markers] :as score}
    {:keys [name] :as at-marker}]
   (when-not (contains? markers name)

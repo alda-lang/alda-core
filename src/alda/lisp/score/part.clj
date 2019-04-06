@@ -5,7 +5,7 @@
             [alda.lisp.attributes       :refer (*initial-attr-vals*)]
             [alda.lisp.events           :refer (apply-global-attributes)]
             [alda.lisp.events.voice     :refer (end-voice-group)]
-            [alda.lisp.model.event      :refer (update-score)]
+            [alda.lisp.model.event      :refer (update-score update-score*)]
             [alda.lisp.model.instrument :refer (*stock-instruments*)]
             [alda.parser                :refer (parse-input)]))
 
@@ -214,7 +214,7 @@
       call
       (invalid-instrument-call-error! s))))
 
-(defmethod update-score :part
+(defmethod update-score* :part
   [score {:keys [instrument-call events] :as part}]
   (let [instrument-call (cond
                           (map? instrument-call)

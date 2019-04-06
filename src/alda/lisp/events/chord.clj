@@ -1,5 +1,5 @@
 (ns alda.lisp.events.chord
-  (:require [alda.lisp.model.event  :refer (update-score add-events)]
+  (:require [alda.lisp.model.event  :refer (update-score update-score*)]
             [alda.lisp.model.offset :refer (offset+ offset=)]
             [alda.lisp.score.util   :refer (update-instruments)]))
 
@@ -52,7 +52,7 @@
              (or beats default))
       [most-beats default])))
 
-(defmethod update-score :chord
+(defmethod update-score* :chord
   [{:keys [beats-tally beats-tally-default current-instruments] :as score}
    {:keys [events] :as chord}]
   (if (and beats-tally (not (empty? current-instruments)))

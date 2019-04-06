@@ -1,5 +1,5 @@
 (ns alda.lisp.events.variable
-  (:require [alda.lisp.model.event :refer (update-score)]))
+  (:require [alda.lisp.model.event :refer (update-score update-score*)]))
 
 (defn- undefined-variable-error!
   [variable]
@@ -36,13 +36,13 @@
     :else
     events))
 
-(defmethod update-score :set-variable
+(defmethod update-score* :set-variable
   [{:keys [env] :as score}
    {:keys [variable events]}]
   (let [events (replace-variables env events)]
     (assoc-in score [:env variable] events)))
 
-(defmethod update-score :get-variable
+(defmethod update-score* :get-variable
   [{:keys [env] :as score}
    {:keys [variable]}]
   (update-score score (get-variable env variable)))

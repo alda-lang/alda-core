@@ -1,7 +1,7 @@
 (ns alda.lisp.events.note
   (:require [alda.lisp.events         :refer (apply-global-attributes)]
             [alda.lisp.model.duration :refer (calculate-duration)]
-            [alda.lisp.model.event    :refer (update-score add-events)]
+            [alda.lisp.model.event    :as    evt]
             [alda.lisp.model.offset   :refer (offset+)]
             [alda.lisp.model.pitch    :refer (determine-midi-note midi->hz)]
             [alda.lisp.model.records  :refer (map->Note)]
@@ -110,11 +110,11 @@
           (#(if current-voice
               (merge-voice-instruments % current-voice updated-instruments)
               (merge-instruments % updated-instruments)))
-          (add-events events)))))
+          (evt/add-events events)))))
 
-(defmethod update-score :note
+(defmethod evt/update-score* :note
   [score note]
   (-> score
       (add-note-or-rest note)
-      (update-score (apply-global-attributes))))
+      (evt/update-score (apply-global-attributes))))
 

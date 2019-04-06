@@ -1,13 +1,13 @@
 (ns alda.lisp.model.global-attribute
   (:require [alda.lisp.events          :refer (set-attribute)]
             [alda.lisp.model.attribute :refer (apply-attribute)]
-            [alda.lisp.model.event     :refer (update-score)]
+            [alda.lisp.model.event     :refer (update-score update-score*)]
             [alda.lisp.model.offset    :refer (absolute-offset
                                                instruments-all-at-same-offset)]
             [alda.lisp.score.util      :refer (update-instruments)]
             [taoensso.timbre           :as    log]))
 
-(defmethod update-score :global-attribute-change
+(defmethod update-score* :global-attribute-change
   [score {:keys [attr val] :as event}]
   (if-let [offset (instruments-all-at-same-offset score)]
     (let [abs-offset (absolute-offset offset score)]
@@ -45,7 +45,7 @@
          (map val)
          (apply merge))))
 
-(defmethod update-score :apply-global-attributes
+(defmethod update-score* :apply-global-attributes
   [{:keys [global-attributes instruments current-instruments]
     :as score} _]
   (update-instruments score
