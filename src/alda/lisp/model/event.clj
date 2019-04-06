@@ -23,6 +23,45 @@
   ; e.g. for side-effecting inline Clojure code
   score)
 
+(defn update-master-tempo-values
+  "In an Alda score, each part has its own tempo and it can differ from the
+   other parts' tempos.
+
+   Nonetheless, we need to maintain a notion of a single \"master\" tempo in
+   order to support features like MIDI export.
+
+   A score has exactly one part whose role is the tempo \"master\".
+
+   The master tempo is derived from local tempo attribute changes for this part,
+   as well as global tempo attribute changes."
+  [score]
+  (let [master-part-tempo (->> score
+                               :instruments
+                               vals
+                               (filter #(= :master (:tempo/role %)))
+                               first
+                               :tempo/values)
+        global-tempo      (reduce-kv
+                            ;; `attr-changes` is a map of attribute to vector of
+                            ;; attribute values. It's a vector because
+                            ;; technically, the attribute can be set multiple
+                            ;; times at the same point in time, which is useful
+                            ;; sometimes because the effect can be cumulative.
+                            ;;
+                            ;; In the case of tempo, it's last writer wins, i.e.
+                            ;; (tempo! 120) (tempo! 125) means the tempo is 125
+                            ;; at that point in time and the 120 is thrown out.
+                            (fn [m offset-ms attr-changes]
+                              (if-let [tempo-vals (:tempo attr-changes)]
+                                (assoc m offset-ms (last tempo-vals))
+                                m))
+                            {}
+                            (:global-attributes score))
+        ;; At this point, we have a map of offset (ms) to tempo (bpm).
+        ;; In the case where no initial tempo is specified, we default to 120.
+        tempo-values      (merge {0 120} master-part-tempo global-tempo)]
+    (assoc score :tempo/values tempo-values)))
+
 (defn update-score
   "Events in Alda are represented as maps containing, at the minimum, a value
    for :event-type to serve as a unique identifier (by convention, a keyword)
@@ -35,10 +74,9 @@
    Lists/vectors are a special case -- they are reduced internally and treated
    as a single 'event sequence'."
   [score event]
-  ;; TODO: re-calculate "master tempo" view based on the global tempo attribute
-  ;; changes and local attribute changes of the instrument whose :tempo/role is
-  ;; :master
-  (update-score* score event))
+  (-> score
+      (update-score* event)
+      update-master-tempo-values))
 
 ; utility fns
 
