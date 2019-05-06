@@ -186,7 +186,7 @@
 
 (defn skip-whitespace
   [parser character]
-  (when (#{\newline \space} character)
+  (when (#{\newline \space \tab} character)
     (advance parser character)))
 
 (declare read-character!)
