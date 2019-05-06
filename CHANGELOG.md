@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Unreleased
+
+* Tabs can now be used as whitespace in an Alda score.
+
 ## 0.5.3 (2019-04-06)
 
 * Instrument parts now track (local) tempo attribute changes. Instrument parts
