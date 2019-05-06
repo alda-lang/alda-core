@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## 0.5.4 (2019-05-05)
 
 * Tabs can now be used as whitespace in an Alda score.
 
