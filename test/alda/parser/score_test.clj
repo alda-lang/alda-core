@@ -21,4 +21,11 @@
           (alda.lisp/note (alda.lisp/pitch :e))]
          (parse-input "guitar: e
                        bass: e"
-                      :output :events))))
+                      :output :events)))
+  (testing "tabs are treated as whitespace"
+    (is (= [(alda.lisp/part {:names ["piano"]})
+            (alda.lisp/note (alda.lisp/pitch :c))
+            (alda.lisp/note (alda.lisp/pitch :e))
+            (alda.lisp/note (alda.lisp/pitch :g))]
+           (parse-input "piano:\tc e g"
+                        :output :events)))))
