@@ -1,2 +1,3 @@
 .nrepl*
 .rebel_readline*
+.clj-kondo/.cache/
