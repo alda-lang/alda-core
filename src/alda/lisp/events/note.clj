@@ -10,7 +10,7 @@
                                               get-current-instruments)]
             [taoensso.timbre          :as    log]))
 
-(defn- event-updates
+(defn event-updates
   "Given a score and a (note/rest) event, returns a list of updates for each
    currently active instrument.
 
@@ -37,22 +37,30 @@
                                                  time-scaling
                                                  ms)
           quant-duration     (* full-duration quant)
-          midi-note          (if (= event-type :note)
+          note-event?        (= event-type :note)
+          midi-note-val      (when note-event?
                                (determine-midi-note event octave key-signature
                                                     transposition))
-          pitch              (if (= event-type :note)
+          midi-note          (if (or (nil? midi-note-val) (<= 0 midi-note-val 127))
+                               midi-note-val
+                               (throw
+                                (ex-info (str "The calculated MIDI note "
+                                              "(" midi-note-val ") is out "
+                                              "of the allowed range.")
+                                         {:midi-note midi-note-val})))
+          pitch              (when note-event?
                                (midi->hz reference-pitch midi-note))
-          note               (if (= event-type :note)
+          note               (when note-event?
                                (map->Note
-                                 {:offset       current-offset
-                                  :instrument   id
-                                  :volume       volume
-                                  :track-volume track-volume
-                                  :panning      panning
-                                  :midi-note    midi-note
-                                  :pitch        pitch
-                                  :duration     quant-duration
-                                  :voice        current-voice}))
+                                {:offset       current-offset
+                                 :instrument   id
+                                 :volume       volume
+                                 :track-volume track-volume
+                                 :panning      panning
+                                 :midi-note    midi-note
+                                 :pitch        pitch
+                                 :duration     quant-duration
+                                 :voice        current-voice}))
           min-duration       (when min-duration
                                (min full-duration min-duration))]
       (log/debug (case event-type
@@ -99,9 +107,9 @@
     (let [updates             (event-updates score event)
           events              (mapcat :events updates)
           inst-updates        (into {}
-                                (map (fn [{:keys [instrument state]}]
-                                       [instrument state])
-                                     updates))
+                                    (map (fn [{:keys [instrument state]}]
+                                           [instrument state])
+                                         updates))
           instruments         (if current-voice
                                 (voice-instruments current-voice)
                                 instruments)
@@ -117,4 +125,3 @@
   (-> score
       (add-note-or-rest note)
       (evt/update-score (apply-global-attributes))))
-
