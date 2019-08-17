@@ -3,7 +3,7 @@
 (def ^:private intervals
   {:c 0, :d 2, :e 4, :f 5, :g 7, :a 9, :b 11})
 
-(defn- midi-note
+(defn- midi-note-number
   "Given a letter and an octave, returns the MIDI note number.
    e.g. :c, 4  =>  60"
   [letter octave]
@@ -27,18 +27,23 @@
 (defn determine-midi-note
   "Determines the MIDI note number of a note, within the context of an
    instrument's octave and key signature."
-  [{:keys [letter accidentals] :as note} octave key-sig transpose]
+  [{:keys [letter accidentals midi-note]} octave key-sig transpose]
   (+ transpose
-     (reduce (fn [number accidental]
-            (case accidental
-              :flat    (dec number)
-              :sharp   (inc number)
-              :natural (identity number)))
-          (midi-note letter octave)
-          (apply-key key-sig letter accidentals))))
+     (if midi-note
+       midi-note
+       (reduce (fn [number accidental]
+                 (case accidental
+                   :flat    (dec number)
+                   :sharp   (inc number)
+                   :natural (identity number)))
+               (midi-note-number letter octave)
+               (apply-key key-sig letter accidentals)))))
 
 (defn pitch
   [letter & accidentals]
   {:letter      letter
    :accidentals (or accidentals [])})
 
+(defn midi-note
+  [note-number]
+  {:midi-note note-number})

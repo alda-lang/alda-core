@@ -27,6 +27,11 @@
     (is (== (calculate-pitch :c [:sharp :flat :flat :sharp] 4 {})
             (calculate-pitch :c [] 4 {})))))
 
+(deftest midi-note-tests
+  (testing "midi-note specifies a pitch as a MIDI note number"
+    (doseq [n [14 42 60 75]]
+      (is (= n (determine-midi-note (midi-note n) 4 {} 0))))))
+
 (deftest ref-pitch-tests
   (testing "reference pitch/tuning constant attribute"
     (is (== 430 (calculate-pitch :a [] 4 {} {:ref-pitch 430})))
@@ -63,7 +68,11 @@
       (let [s     (continue s
                     (transpose 2))
             piano (get-instrument s "piano")]
-        (is (== 2 (:transposition piano)))))))
+        (is (== 2 (:transposition piano))))))
+  (testing "transposing notes specified as MIDI note numbers"
+    (doseq [n [14 42 60 75]]
+      (is (= (+ n 5)
+             (determine-midi-note (midi-note n) 4 {} 5))))))
 
 (deftest key-tests
   (testing "you can set and get a key signature"
@@ -94,7 +103,7 @@
     (let [s     (score
                  (part "piano"
                    (key-sig [:c :lydian])))
-         piano (get-instrument s "piano")]
+          piano (get-instrument s "piano")]
      (is (= {:f [:sharp]}
             (:key-signature piano))))
     (let [s     (score
@@ -104,33 +113,33 @@
       (is (= {:f [:sharp]}
              (:key-signature piano))))
     (let [s     (score
-                (part "piano"
-                  (key-sig [:e :dorian])))
-        piano (get-instrument s "piano")]
-    (is (= {:f [:sharp], :c [:sharp]}
-           (:key-signature piano))))
+                 (part "piano"
+                   (key-sig [:e :dorian])))
+          piano (get-instrument s "piano")]
+     (is (= {:f [:sharp], :c [:sharp]}
+            (:key-signature piano))))
     (let [s     (score
                  (part "piano"
                    (key-sig [:f :phrygian])))
-         piano (get-instrument s "piano")]
+          piano (get-instrument s "piano")]
      (is (= {:b [:flat] :e [:flat] :a [:flat] :d [:flat] :g [:flat]}
             (:key-signature piano))))
     (let [s     (score
                  (part "piano"
                    (key-sig [:g :locrian])))
-         piano (get-instrument s "piano")]
-     (is (= {:b [:flat] :e [:flat] :a [:flat] :d [:flat] }
+          piano (get-instrument s "piano")]
+     (is (= {:b [:flat] :e [:flat] :a [:flat] :d [:flat]}
             (:key-signature piano))))
     (let [s     (score
                  (part "piano"
                    (key-sig [:a :ionian])))
-         piano (get-instrument s "piano")]
+          piano (get-instrument s "piano")]
      (is (= {:f [:sharp], :c [:sharp] :g [:sharp]}
             (:key-signature piano))))
     (let [s     (score
                  (part "piano"
                    (key-sig [:b :aeolian])))
-         piano (get-instrument s "piano")]
+          piano (get-instrument s "piano")]
      (is (= {:f [:sharp], :c [:sharp]}
             (:key-signature piano)))))
 
@@ -153,8 +162,8 @@
           t     (score
                   (part "piano"
                     (key-sig [:c :major])))
-         piano  (get-instrument s "piano")
-         piano2 (get-instrument t "piano")]
+          piano  (get-instrument s "piano")
+          piano2 (get-instrument t "piano")]
      (is (= (:key-signature piano2)
             (:key-signature piano)
             {}))))
@@ -166,8 +175,8 @@
           t     (score
                   (part "piano"
                     (key-sig [:c :minor])))
-         piano  (get-instrument s "piano")
-         piano2 (get-instrument t "piano")]
+          piano  (get-instrument s "piano")
+          piano2 (get-instrument t "piano")]
      (is (= (:key-signature piano2)
             (:key-signature piano)
             {:b [:flat] :e [:flat] :a [:flat]})))))

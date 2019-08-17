@@ -26,6 +26,7 @@
     hello_world
     jimenez-divertimento
     key_signature
+    midi-note-numbers
     modes1
     modes2
     multi-poly

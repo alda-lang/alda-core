@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 0.6.0 (2019-08-16)
+
+* New alda.lisp function, `midi-note`, is available as an alternative to
+  `pitch` that is occasionally useful for algorithmic compositions, etc. For
+  example, instead of `(note (pitch :c :sharp))`, you can specify the MIDI note
+  number, `(note (midi-note 61))`.
+
 ## 0.5.4 (2019-05-05)
 
 * Tabs can now be used as whitespace in an Alda score.

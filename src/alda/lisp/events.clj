@@ -30,10 +30,11 @@
    (let [duration (when (map? x) x)
          slur?    (= x :slur)]
      (note pitch duration slur?)))
-  ([{:keys [letter accidentals]} {:keys [beats ms slurred]} slur?]
+  ([{:keys [letter accidentals midi-note]} {:keys [beats ms slurred]} slur?]
    {:event-type  :note
     :letter      letter
     :accidentals accidentals
+    :midi-note   midi-note
     :beats       beats
     :ms          ms
     :slur?       (or slur? slurred)}))

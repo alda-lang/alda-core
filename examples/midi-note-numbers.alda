@@ -1,0 +1,5 @@
+midi-calliope-lead:
+  (set-note-length 8)
+  # midi notes 10, 20, 30, ..., 90
+  (for [n (range 10 100 10)]
+    (note (midi-note n)))
