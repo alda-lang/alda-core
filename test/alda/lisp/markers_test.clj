@@ -8,17 +8,16 @@
 
 (deftest marker-tests
   (testing "a marker:"
-    (let [s                    (score (part "piano"))
-          events-before        (:events s)
-          marker-events-before (:marker-events s)
-          piano                (get-instrument s "piano")
-          offset-before        (:current-offset piano)
-          marker-before        (:current-marker piano)
-          s                    (continue s
-                                 (marker "test-marker"))
-          piano                (get-instrument s "piano")
-          offset-after         (:current-offset piano)
-          marker-after         (:current-marker piano)]
+    (let [s             (score (part "piano"))
+          events-before (:events s)
+          piano         (get-instrument s "piano")
+          offset-before (:current-offset piano)
+          marker-before (:current-marker piano)
+          s             (continue s
+                          (marker "test-marker"))
+          piano         (get-instrument s "piano")
+          offset-after  (:current-offset piano)
+          marker-after  (:current-marker piano)]
       (testing "placing a marker doesn't change the current offset"
         (is (= offset-before offset-after)))
       (testing "placing a marker doesn't change the current marker"
@@ -29,13 +28,10 @@
           (is (number? test-marker-offset)))
         (testing "its offset should be correct"
           (is (offset= s offset-before (->AbsoluteOffset test-marker-offset)))))
-      (testing "events should continue to go in :events, not :marker-events"
-        (let [s                   (continue s
-                                    (note (pitch :c)))
-              events-after        (:events s)
-              marker-events-after (:marker-events s)]
-          (is (empty? marker-events-before))
-          (is (empty? marker-events-after))
+      (testing "events should continue to go in :events"
+        (let [s            (continue s
+                             (note (pitch :c)))
+              events-after (:events s)]
           (is (empty? events-before))
           (is (not (empty? events-after)))))))
   (testing "at-marker:"
