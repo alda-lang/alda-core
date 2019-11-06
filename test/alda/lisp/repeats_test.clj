@@ -1,13 +1,13 @@
-(ns alda.lisp.attributes-test
+(ns alda.lisp.repeats-test
   (:require [clojure.test      :refer :all]
             [alda.lisp         :refer :all]))
 
 (deftest repeats-test
   (testing "alternate endings/numbered repeats"
     (is (= [[(alda.lisp/note (alda.lisp/pitch :c))
-            (alda.lisp/note (alda.lisp/pitch :d))]
+             (alda.lisp/note (alda.lisp/pitch :d))]
             [(alda.lisp/note (alda.lisp/pitch :c))
-            (alda.lisp/note (alda.lisp/pitch :e))]]
+             (alda.lisp/note (alda.lisp/pitch :e))]]
            (alda.lisp/times 2
               [(alda.lisp/note (alda.lisp/pitch :c))
                [[1] (alda.lisp/note (alda.lisp/pitch :d))]
@@ -15,8 +15,8 @@
 
     (is (= [[(alda.lisp/note (alda.lisp/pitch :c))]
             [(alda.lisp/note (alda.lisp/pitch :c))
-            (alda.lisp/note (alda.lisp/pitch :d))
-            (alda.lisp/note (alda.lisp/pitch :e))]
+             (alda.lisp/note (alda.lisp/pitch :d))
+             (alda.lisp/note (alda.lisp/pitch :e))]
             [(alda.lisp/note (alda.lisp/pitch :d))
              (alda.lisp/note (alda.lisp/pitch :e))]
             [(alda.lisp/note (alda.lisp/pitch :c))]]
