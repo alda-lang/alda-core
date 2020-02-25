@@ -101,21 +101,24 @@
   ;; expressions.
   (when-not (resolve 'ALDA-LISP-LOADED)
     (require '[alda.lisp :refer :all]))
-  (go-loop [score (score/score)]
-    (let [error (atom nil)
-          event (<!! events-ch2)]
+  (go-loop [score (score/score), error nil]
+    (let [event (<!! events-ch2)]
       (cond
         (nil? event)
-        (if @error @error score)
+        (or error score)
 
         (instance? Throwable event)
-        (swap! error #(or % event))
+        (recur score event)
+
+        error
+        (recur score error)
 
         :else
-        (recur (try
-                 (score/continue score event)
-                 (catch Throwable e
-                   (swap! error #(or % e)))))))))
+        (let [[score error] (try
+                              [(score/continue score event) nil]
+                              (catch Throwable e
+                                [score e]))]
+          (recur score error))))))
 
 (defn parse-input
   "Given a string of Alda code, process it via the following asynchronous
