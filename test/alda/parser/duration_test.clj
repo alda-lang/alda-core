@@ -1,5 +1,6 @@
 (ns alda.parser.duration-test
   (:require [clojure.test :refer :all]
+            [alda.lisp]
             [alda.parser  :refer (parse-input)]))
 
 (deftest duration-tests
@@ -64,11 +65,19 @@
                                   (alda.lisp/note-length 4)
                                   (alda.lisp/ms 350)))])))
   (testing "slurs"
-    (is (= (parse-input "c4~" :output :events)
-           [(alda.lisp/note
-              (alda.lisp/pitch :c)
-              (alda.lisp/duration (alda.lisp/note-length 4))
-              :slur)]))
+    (are
+      [input]
+      (= (parse-input input :output :events)
+         [(alda.lisp/note
+            (alda.lisp/pitch :c)
+            (alda.lisp/duration (alda.lisp/note-length 4))
+            :slur)])
+      "c4~"
+      "c4~\n"
+      "c4~|"
+      "c4~|\n"
+      "c4~ |"
+      "c4~ |\n")
     (is (= (parse-input "c420ms~" :output :events)
            [(alda.lisp/note
               (alda.lisp/pitch :c)

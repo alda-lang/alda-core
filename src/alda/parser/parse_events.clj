@@ -102,11 +102,15 @@
 
 (defmethod alda-event :duration
   [{:keys [content]}]
-  (-> (apply dur/duration (for [{:keys [type] :as event} content
-                                :when (not= :tie type)]
-                            (alda-event-with-metadata event)))
-      (merge (when (= :tie (:type (last content)))
-               {:slur? true}))))
+  (let [slurred? (->> content
+                      (remove #(= :barline (:type %)))
+                      last
+                      :type
+                      (= :tie))]
+    (-> (apply dur/duration (for [{:keys [type] :as event} content
+                                  :when (not= :tie type)]
+                              (alda-event-with-metadata event)))
+        (merge (when slurred? {:slur? true})))))
 
 (defmethod alda-event :event-seq
   [{:keys [content]}]

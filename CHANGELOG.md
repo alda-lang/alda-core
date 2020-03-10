@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## Unreleased
+
+* Fixed a minor bug where the parser would fail to recognize that a note at the
+  end of a part that ends with a `~` followed by a `|` is supposed to be
+  slurred.
+
+  In other words, it was treating `c4~ |` at the end of an instrument part as an
+  un-slurred note, when it's supposed to be slurred.
+
 ## 0.6.0 (2019-08-16)
 
 * New alda.lisp function, `midi-note`, is available as an alternative to
