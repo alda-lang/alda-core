@@ -9,6 +9,10 @@
   In other words, it was treating `c4~ |` at the end of an instrument part as an
   un-slurred note, when it's supposed to be slurred.
 
+* Fixed buggy error handling logic in the case of an unhandled exception.
+  Before, we were inadvertently hiding the exception and the message ended up
+  being "null." Now the exception message gets through.
+
 ## 0.6.0 (2019-08-16)
 
 * New alda.lisp function, `midi-note`, is available as an alternative to
