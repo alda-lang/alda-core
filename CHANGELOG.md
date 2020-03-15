@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## 0.6.1 (2020-03-14)
 
 * Fixed a minor bug where the parser would fail to recognize that a note at the
   end of a part that ends with a `~` followed by a `|` is supposed to be
