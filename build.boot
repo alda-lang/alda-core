@@ -3,20 +3,20 @@
   :resource-paths #{"examples"}
   :dependencies   '[
                     ; dev
-                    [adzerk/bootlaces            "0.1.13"       :scope "test"]
+                    [adzerk/bootlaces            "0.2.0"       :scope "test"]
                     [adzerk/boot-test            "1.2.0"        :scope "test"]
-                    [org.clojure/tools.namespace "0.3.0-alpha3" :scope "test"]
+                    [org.clojure/tools.namespace "1.0.0" :scope "test"]
                     [alda/server-clj             "LATEST"       :scope "test"]
                     [alda/sound-engine-clj       "LATEST"       :scope "test"]
                     ; used in examples_test.clj
-                    [io.aviso/pretty             "0.1.34"       :scope "test"]
+                    [io.aviso/pretty             "0.1.37"       :scope "test"]
 
                     ; alda.core
                     [org.clojure/clojure    "1.10.1"]
-                    [org.clojure/core.async "0.3.443"]
+                    [org.clojure/core.async "1.0.567"]
                     [com.taoensso/timbre    "4.10.0"]
-                    [djy                    "0.1.4"]
-                    [potemkin               "0.4.4"]
+                    [djy                    "0.2.1"]
+                    [potemkin               "0.4.5"]
                     [clj_manifest           "0.2.0"]])
 
 (require '[adzerk.bootlaces :refer :all]
