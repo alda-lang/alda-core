@@ -3,13 +3,17 @@
   :resource-paths #{"examples"}
   :dependencies   '[
                     ; dev
-                    [adzerk/bootlaces            "0.2.0"       :scope "test"]
-                    [adzerk/boot-test            "1.2.0"        :scope "test"]
-                    [org.clojure/tools.namespace "1.0.0" :scope "test"]
-                    [alda/server-clj             "LATEST"       :scope "test"]
-                    [alda/sound-engine-clj       "LATEST"       :scope "test"]
+                    [adzerk/bootlaces            "0.2.0"  :scope "test"
+                     ;; dev dependencies that accidentally got included in the
+                     ;; deployed jar. whoops.
+                     :exclusions [boot/new
+                                  cpmcdaniel/boot-with-pom]]
+                    [adzerk/boot-test            "1.2.0"  :scope "test"]
+                    [org.clojure/tools.namespace "1.0.0"  :scope "test"]
+                    [alda/server-clj             "LATEST" :scope "test"]
+                    [alda/sound-engine-clj       "LATEST" :scope "test"]
                     ; used in examples_test.clj
-                    [io.aviso/pretty             "0.1.37"       :scope "test"]
+                    [io.aviso/pretty             "0.1.37" :scope "test"]
 
                     ; alda.core
                     [org.clojure/clojure    "1.10.1"]
