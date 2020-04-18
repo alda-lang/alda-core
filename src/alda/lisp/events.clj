@@ -136,15 +136,21 @@
 
 (defn- times-select
   [n event]
-  (let [; for each unpaired event, pair it with a repetition vector
+  (let [pair?          (fn [x]
+                         (and (sequential? x)
+                              (let [y (first x)]
+                                (and (sequential? y)
+                                     (every? number? y)))))
+
+        ; for each unpaired event, pair it with a repetition vector
         ; (assume that unpaired = repeat each time)
         ; + decrement all reps to match future indexing
         ; e.g. [[[1 3] note1] note2] -> [[[0 2] note1] [[0 1 2] note2]] (n = 3)
         wrap-unpaired  (fn [evnt-or-pair]
-                         (if (map? evnt-or-pair)
-                           (vector (range n) evnt-or-pair)
+                         (if (pair? evnt-or-pair)
                            (let [[reps evnt] evnt-or-pair]
-                             (vector (map dec reps) evnt))))
+                             (vector (map dec reps) evnt))
+                           (vector (range n) evnt-or-pair)))
 
         ; if event seq is associated with one rep vector, then pair that rep
         ; with each event in the sequence

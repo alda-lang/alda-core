@@ -61,7 +61,12 @@
                          (a/pause (a/duration (a/note-length 8)))
                          (a/octave :up)
                          (a/note (a/pitch :g))]]])]
-           (parse-input "[{c d e}2'1,3 [f r8 > g]'2-4]*4" :output :events))))
+           (parse-input "[{c d e}2'1,3 [f r8 > g]'2-4]*4" :output :events)))
+
+    (is (= [(a/times 1
+              [(a/note (a/pitch :c))
+               [[1] (a/note (a/pitch :d))]])]
+           (parse-input "[[c] [d]'1]*1" :output :events))))
 
   (testing "alternate endings parse errors"
     (is (thrown-with-msg? Exception #"Unexpected"

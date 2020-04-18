@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 0.6.2 (2020-04-17)
+
+* Fixed a minor bug related to alternate endings / repetitions, where input like
+  the following would fail to parse correctly:
+
+  ```
+  [[c] [d]'1]*1
+  ```
+
+  The bug had to do with using event sequences in combination with the alternate
+  endings feature.
+
 ## 0.6.1 (2020-03-14)
 
 * Fixed a minor bug where the parser would fail to recognize that a note at the
