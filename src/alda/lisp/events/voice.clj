@@ -1,6 +1,7 @@
 (ns alda.lisp.events.voice
   (:require [alda.lisp.model.event :refer (update-score update-score*)]
-            [alda.lisp.score.util  :as    score]))
+            [alda.lisp.score.util  :as    score]
+            [taoensso.timbre       :as    log]))
 
 (defn- update-instruments
   "As the events for each voice are added to the score, the state of each
@@ -26,10 +27,11 @@
 
 (defmethod update-score* :voice
   [{:keys [instruments] :as score}
-   {:keys [number events] :as voice}]
+   {:keys [number events]}]
   (if (zero? number)
     (-> score end-voice-group)
-    (let [score (-> score
+    (let [_     (log/debug (str "Voice marker: V" number))
+          score (-> score
                     (assoc :current-voice number)
                     (update-in [:voice-instruments number]
                                #(if % % instruments)))]
