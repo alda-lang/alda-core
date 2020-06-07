@@ -16,7 +16,7 @@
    Wraps the result in a map to give the `duration` function context that we're
    talking about a number of beats."
   ([number]
-    (note-length number {:dots 0}))
+   (note-length number {:dots 0}))
   ([number {:keys [dots]}]
    {:pre [(number? number) (pos? number)]}
    {:type :beats
@@ -75,5 +75,5 @@
                          value))]
     {:beats     beats
      :ms        ms
-     :duration? true} ; identify this as a duration map
-    ))
+     :duration? true})) ; identify this as a duration map
+    
