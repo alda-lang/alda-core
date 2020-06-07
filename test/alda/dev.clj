@@ -1,5 +1,7 @@
 (ns alda.dev
-  (:require [alda.server   :as s]
+  (:require [alda.parser   :as p]
+            [alda.server   :as s]
+            [alda.util     :as util]
             [alda.worker   :as w]
             [cheshire.core :as json]
             [ezzmq.core    :as zmq]))
@@ -40,3 +42,25 @@
   (let [backend-port (get-backend-port frontend-port)]
     (dotimes [_ workers]
       (future (start-worker! backend-port)))))
+
+;;; scratchwork
+
+(comment
+  (util/set-log-level! :debug)
+
+  (p/parse-input
+    "(quant! 50)
+     (tempo! 120)
+
+     piano:
+        V1: {g a- g}16 f16 (quant! 80) c
+        V2: o1 a-8 g c b")
+
+  (p/parse-input
+    "(quant! 50)
+     (tempo! 120)
+
+     piano:
+        V1: g16 f16 (quant! 80) c
+        V2: o1 a-8 g c b"))
+
