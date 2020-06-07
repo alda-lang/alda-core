@@ -7,10 +7,36 @@
             [alda.lisp.score.util      :refer (update-instruments)]
             [taoensso.timbre           :as    log]))
 
+(defn- round-to-precision
+  "Round a double to the given precision (number of significant digits)"
+  [precision d]
+  (let [factor (Math/pow 10 precision)]
+    (/ (Math/round (* d factor)) factor)))
+
+(defn- fudge
+  "There are some very subtle timing inaccuracies (imperceptible to the human
+   ear) related to the way we're doing math with floating point numbers. As a
+   result, we can sometimes inadvertently place a global attribute a fraction of
+   a millisecond too late, and so the attribute change might not be picked up
+   until it's too late.
+
+   Alda v2 seems to be immune to this problem for some reason. Floating math is
+   weird, and it's even harder to understand the differences between the math
+   stacks in different programming language runtimes (in this case, Clojure vs.
+   Go). I don't have anywhere near enough free time to figure out for sure
+   what's happening, so as a workaround, we're going to fudge the numbers a bit
+   in Alda v1: we're going to round off the offsets for recorded global
+   attribute changes to the nearest ten-thousandth of a millisecond.
+
+   e.g. instead of recording a global attribute change at 250.00000381469727 ms,
+   we'll record it at 250.0000 ms."
+  [number]
+  (round-to-precision 4 number))
+
 (defmethod update-score* :global-attribute-change
   [score {:keys [attr val] :as event}]
   (if-let [offset (instruments-all-at-same-offset score)]
-    (let [abs-offset (absolute-offset offset score)]
+    (let [abs-offset (fudge (absolute-offset offset score))]
       (log/debugf "Set global attribute %s %s at offset %d."
                   attr val (int abs-offset))
       (-> score
@@ -36,7 +62,7 @@
    sequentially."
   [{:keys [global-attributes] :as score}
    {:keys [current-offset last-offset] :as inst}]
-  (let [[last current] (map #(absolute-offset % score)
+  (let [[last current] (map #(fudge (absolute-offset % score))
                             [last-offset current-offset])
         [start end]    (if (<= last current) [last current] [0 current])]
     (->> global-attributes
