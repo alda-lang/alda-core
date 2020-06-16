@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## 0.6.3 (2020-06-15)
 
 * Fixed a bug where in some cases, a global attribute can be recorded a fraction
   of a millisecond too late, potentially resulting in parts/voices not picking
