@@ -15,8 +15,8 @@
       (log/debug "Set marker" (str \" name \") "at offset"
                  (str (int offset) \.))
       (assoc-in score [:markers name] offset))
-    (throw (Exception. (str "Can't place marker" (str \" name \")
-                            "- offset unclear.")))))
+    (throw (Exception. (str "Can't place marker " (str \" name \")
+                            " - offset unclear.")))))
 
 (defmethod update-score* :at-marker
   [{:keys [current-instruments markers] :as score}
