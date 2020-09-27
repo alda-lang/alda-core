@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## Unreleased
+
+* Fixed string formatting in the error message that you get when you place a
+  marker at an unclear location. (See [#85][pr-85]). Thanks, [dhpiggott], for
+  the contribution!
+
+[pr-85]: https://github.com/alda-lang/alda-core/pull/85
+
 ## 0.6.3 (2020-06-15)
 
 * Fixed a bug where in some cases, a global attribute can be recorded a fraction
@@ -370,3 +378,4 @@ Thanks, [pzxwang] for contributing the changes in this release in PR [#50](https
 [pzxwang]: https://github.com/pzxwang
 [iggar]: https://github.com/iggar
 [Hemaolle]: https://github.com/Hemaolle
+[dhpiggott]: https://github.com/dhpiggott
