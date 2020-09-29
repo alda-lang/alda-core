@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## 0.6.4 (2020-09-29)
 
 * Fixed string formatting in the error message that you get when you place a
   marker at an unclear location. (See [#85][pr-85]). Thanks, [dhpiggott], for
