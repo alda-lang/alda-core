@@ -2,6 +2,8 @@
 
 The core machinery of [Alda](https://github.com/alda-lang/alda), implemented in Clojure.
 
+> **NOTE:** This was a component of Alda 1.x. It is no longer in use.
+
 ## Components
 
 * **alda.lisp**: a Clojure DSL for building a musical score
