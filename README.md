@@ -1,8 +1,8 @@
 # alda-core
 
-The core machinery of [Alda](https://github.com/alda-lang/alda), implemented in Clojure.
-
 > **NOTE:** This was a component of Alda 1.x. It is no longer in use.
+
+The core machinery of [Alda](https://github.com/alda-lang/alda), implemented in Clojure.
 
 ## Components
 
